@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,11 +15,9 @@
 body {
   margin: 0;
   min-width: 320px;
-  background:
-    radial-gradient(circle at top left, rgba(25, 87, 166, 0.12), transparent 34rem),
-    linear-gradient(180deg, #f8fbff 0%, #f3f6fb 100%);
-  color: #101828;
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  background-color: #f8f9fa;
+  color: #212529;
+  font-family: 'Roboto', Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
 button,

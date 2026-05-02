@@ -2,52 +2,61 @@ import { CheckCircle2, Clock3, LockKeyhole } from 'lucide-react';
 
 const statusConfig = {
   completed: {
-    label: 'Completed',
+    label: 'COMPLETED',
     icon: CheckCircle2,
-    className: 'border-green-200 bg-green-50 text-civic-green',
+    className: 'border-eci-green-border bg-eci-green-bg text-eci-green-accent',
   },
   pending: {
-    label: 'Pending',
+    label: 'PENDING',
     icon: Clock3,
-    className: 'border-amber-200 bg-amber-50 text-amber-700',
+    className: 'border-eci-yellow-border bg-eci-yellow-bg text-eci-yellow-accent',
   },
   locked: {
-    label: 'Locked',
+    label: 'LOCKED',
     icon: LockKeyhole,
-    className: 'border-red-200 bg-red-50 text-red-700',
+    className: 'border-eci-red-border bg-eci-red-bg text-eci-red-accent',
   },
 };
 
 export function Roadmap({ steps }) {
   return (
-    <section className="premium-card p-5">
-      <div className="mb-5">
-        <h2 className="text-xl font-extrabold text-ink">Dynamic roadmap</h2>
-        <p className="mt-1 text-sm text-muted">Only relevant actions are shown for your profile.</p>
+    <section className="bg-white rounded-xl border border-eci-yellow-border p-6 shadow-sm">
+      <div className="mb-6 flex items-center gap-3">
+        <div className="h-8 w-1.5 bg-eci-blue rounded-full" />
+        <div>
+          <h2 className="text-xl font-bold text-eci-blue uppercase tracking-tight">Your Voter Roadmap</h2>
+          <p className="text-xs font-bold text-muted uppercase tracking-widest">Personalized Action Items</p>
+        </div>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-4">
         {steps.map((step) => {
           const config = statusConfig[step.status];
           const Icon = config.icon;
           return (
             <article
               key={step.id}
-              className={`interactive-card rounded-lg border p-4 ${
-                step.priority ? 'border-civic-blue bg-blue-50/70' : 'border-civic-line bg-white'
+              className={`rounded-xl border p-5 transition-all ${
+                step.priority 
+                  ? 'border-eci-blue bg-eci-sky-bg shadow-sm' 
+                  : 'border-slate-200 bg-white'
               }`}
             >
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <h3 className="font-bold text-ink">{step.title}</h3>
-                  {step.priority && (
-                    <p className="mt-1 text-xs font-bold uppercase tracking-wide text-civic-blue">Priority action</p>
-                  )}
-                  <p className="mt-1 text-sm leading-6 text-muted">{step.description}</p>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-ink text-lg">{step.title}</h3>
+                    {step.priority && (
+                      <span className="bg-eci-blue text-[10px] text-white px-2 py-0.5 rounded font-black uppercase tracking-tighter">
+                        Urgent
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-muted font-medium">{step.description}</p>
                 </div>
                 <span
-                  className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold ${config.className}`}
+                  className={`inline-flex items-center gap-2 rounded px-3 py-1.5 text-[10px] font-black uppercase tracking-widest border ${config.className}`}
                 >
-                  <Icon size={15} aria-hidden="true" />
+                  <Icon size={14} aria-hidden="true" />
                   {config.label}
                 </span>
               </div>

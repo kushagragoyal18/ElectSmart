@@ -4,22 +4,32 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Roboto', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       colors: {
-        ink: '#101828',
-        muted: '#667085',
+        ink: '#212529',
+        muted: '#6c757d',
+        eci: {
+          blue: '#3f4095',
+          teal: '#17a2b8',
+          pink: { bg: '#fff5f7', border: '#fbcfe8', accent: '#ff64d1' },
+          green: { bg: '#f0fdf4', border: '#bbf7d0', accent: '#64c118' },
+          red: { bg: '#fef2f2', border: '#fecaca', accent: '#ef4040' },
+          cyan: { bg: '#ecfeff', border: '#a5f3fc', accent: '#2bb9e9' },
+          yellow: { bg: '#fffbeb', border: '#fef3c7', accent: '#854d0e' },
+          sky: { bg: '#f0f9ff', border: '#bae6fd', accent: '#17a2b8' },
+        },
         civic: {
-          navy: '#0B3C91',
-          blue: '#1455A3',
-          saffron: '#f08b2f',
-          green: '#137a4b',
-          paper: '#f6f8fb',
-          line: '#d9e2ef',
+          navy: '#3f4095',
+          blue: '#3f4095',
+          saffron: '#ff9933',
+          green: '#138808',
+          paper: '#f8f9fa',
+          line: '#dee2e6',
         },
       },
       boxShadow: {
-        soft: '0 14px 40px rgba(16, 24, 40, 0.08)',
+        soft: '0 4px 12px rgba(0, 0, 0, 0.05)',
       },
     },
   },
