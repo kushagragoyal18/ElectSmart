@@ -6,6 +6,7 @@ import { Roadmap } from '../components/Roadmap.jsx';
 import { WatchLearn } from '../components/WatchLearn.jsx';
 import { Shell } from '../components/Shell.jsx';
 import { SmartAssistant } from '../components/SmartAssistant.jsx';
+import { VVPATSimulator } from '../components/VVPATSimulator.jsx';
 import { useVoterProfile } from '../context/VoterProfileContext.jsx';
 import { useElectionPlan } from '../hooks/useElectionPlan.js';
 
@@ -38,6 +39,7 @@ export function App() {
               nextAction={plan.nextAction}
               planState={plan.planState}
             />
+            <VVPATSimulator />
             <MapsLocator election={plan.election} />
           </aside>
         </div>
