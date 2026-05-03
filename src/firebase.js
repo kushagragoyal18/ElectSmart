@@ -14,10 +14,24 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+const hasFirebaseConfig = Boolean(
+  firebaseConfig.apiKey &&
+  firebaseConfig.authDomain &&
+  firebaseConfig.projectId &&
+  firebaseConfig.appId,
+);
+
+let app = null;
+let auth = null;
+let db = null;
+let storage = null;
+
+if (hasFirebaseConfig) {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  storage = getStorage(app);
+}
 
 let analyticsPromise;
 
@@ -37,6 +51,10 @@ export async function getFirebaseAnalytics() {
  * @returns {Promise<void>}
  */
 export async function trackEvent(eventName, params = {}) {
+  if (!app) {
+    return;
+  }
+
   const analytics = await getFirebaseAnalytics();
   if (analytics) {
     logEvent(analytics, eventName, params);

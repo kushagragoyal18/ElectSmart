@@ -17,6 +17,13 @@ export function VoterProfileProvider({ children }) {
 
   // Sync profile from Firestore when user changes
   useEffect(() => {
+    if (!db) {
+      setProfileState(null);
+      setLanguageState(localStorage.getItem(LANGUAGE_STORAGE_KEY) || DEFAULT_LANGUAGE);
+      setLoading(false);
+      return undefined;
+    }
+
     if (!user) {
       setProfileState(null);
       setLanguageState(localStorage.getItem(LANGUAGE_STORAGE_KEY) || DEFAULT_LANGUAGE);

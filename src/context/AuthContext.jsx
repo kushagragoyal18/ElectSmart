@@ -17,8 +17,15 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!auth) {
+      setLoading(false);
+      return undefined;
+    }
+
     // Set persistence to local (keeps user logged in after refresh)
-    setPersistence(auth, browserLocalPersistence);
+    setPersistence(auth, browserLocalPersistence).catch((error) => {
+      console.error('Auth persistence error:', error);
+    });
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -32,6 +39,10 @@ export function AuthProvider({ children }) {
   }, []);
 
   const loginWithGoogle = async () => {
+    if (!auth) {
+      throw new Error('Firebase authentication is not configured.');
+    }
+
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
@@ -45,6 +56,10 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
+    if (!auth) {
+      return;
+    }
+
     try {
       await signOut(auth);
       trackEvent('logout', { status: 'success' });
