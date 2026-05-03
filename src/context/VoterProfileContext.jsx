@@ -1,12 +1,31 @@
 import PropTypes from 'prop-types';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { DEFAULT_LANGUAGE, LANGUAGE_STORAGE_KEY } from '../constants.js';
+import { DEFAULT_LANGUAGE, LANGUAGE_STORAGE_KEY, PROFILE_STORAGE_KEY } from '../constants.js';
 import { normalizeStateId } from '../data/elections.js';
 import { db, trackEvent } from '../firebase.js';
 import { doc, onSnapshot, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { useAuth } from './AuthContext.jsx';
 
 const VoterProfileContext = createContext(null);
+
+function readStoredProfile() {
+  try {
+    const rawProfile = localStorage.getItem(PROFILE_STORAGE_KEY);
+    if (!rawProfile) {
+      return null;
+    }
+
+    const storedProfile = JSON.parse(rawProfile);
+    if (!storedProfile?.state) {
+      return null;
+    }
+
+    return { ...storedProfile, state: normalizeStateId(storedProfile.state) };
+  } catch (error) {
+    console.error('Error reading stored profile:', error);
+    return null;
+  }
+}
 
 /** Provides voter profile and localization state to descendants using Firestore. */
 export function VoterProfileProvider({ children }) {
@@ -18,7 +37,7 @@ export function VoterProfileProvider({ children }) {
   // Sync profile from Firestore when user changes
   useEffect(() => {
     if (!db) {
-      setProfileState(null);
+      setProfileState(readStoredProfile());
       setLanguageState(localStorage.getItem(LANGUAGE_STORAGE_KEY) || DEFAULT_LANGUAGE);
       setLoading(false);
       return undefined;
@@ -57,15 +76,23 @@ export function VoterProfileProvider({ children }) {
 
   /** Persists a normalized voter profile to Firestore. */
   async function setProfile(nextProfile) {
-    if (!user) {
-      // Fallback or handle unauthenticated
+    const normalizedProfile = { ...nextProfile, state: normalizeStateId(nextProfile.state) };
+
+    if (!user || !db) {
+      try {
+        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(normalizedProfile));
+        setProfileState(normalizedProfile);
+        trackEvent('update_profile_local', { state: normalizedProfile.state });
+      } catch (error) {
+        console.error('Error saving local profile:', error);
+      }
       return;
     }
 
-    const normalizedProfile = { ...nextProfile, state: normalizeStateId(nextProfile.state) };
     try {
       const userDocRef = doc(db, 'users', user.uid);
       await setDoc(userDocRef, { profile: normalizedProfile }, { merge: true });
+      setProfileState(normalizedProfile);
       trackEvent('update_profile', { state: normalizedProfile.state });
     } catch (error) {
       console.error('Error saving profile:', error);
@@ -92,6 +119,12 @@ export function VoterProfileProvider({ children }) {
 
   /** Clears the current voter profile in Firestore. */
   async function resetProfile() {
+    if (!user || !db) {
+      localStorage.removeItem(PROFILE_STORAGE_KEY);
+      setProfileState(null);
+      return;
+    }
+
     if (user) {
       try {
         const userDocRef = doc(db, 'users', user.uid);
@@ -109,6 +142,7 @@ export function VoterProfileProvider({ children }) {
   const value = useMemo(() => ({ 
     profile, 
     setProfile, 
+    updateProfile: setProfile,
     resetProfile,
     language,
     setLanguage,

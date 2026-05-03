@@ -68,7 +68,7 @@ TabList.propTypes = {
  * Handles onboarding flow and dashboard navigation.
  */
 export function App() {
-  const { profile, updateProfile, resetProfile, loading } = useVoterProfile();
+  const { profile, setProfile, resetProfile, loading } = useVoterProfile();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const electionData = useMemo(() => (profile ? getElectionData(profile.state) : null), [profile]);
@@ -93,7 +93,7 @@ export function App() {
   if (!profile) {
     return (
       <ErrorBoundary componentName="Onboarding">
-        <Onboarding onComplete={updateProfile} />
+        <Onboarding onComplete={setProfile} />
       </ErrorBoundary>
     );
   }
