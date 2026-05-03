@@ -66,24 +66,27 @@ export function VVPATSimulator() {
           <div className="rounded-b-lg border-x border-b border-slate-300 bg-slate-100 p-4 shadow-inner">
             <div className="space-y-2">
               {EVM_CANDIDATES.map((candidate) => (
-                <div key={candidate.id} className="flex items-center gap-3 rounded border border-slate-300 bg-white p-2 shadow-sm">
-                  <span className="w-6 text-center text-xs font-bold text-slate-500" aria-hidden="true">{candidate.id}</span>
-                  <div className="flex-1">
-                    <div className="text-sm font-bold text-ink">{candidate.name}</div>
-                    <div className="text-[10px] uppercase text-muted">{candidate.party}</div>
+                <div key={candidate.id} className="flex items-center gap-2 rounded border border-slate-300 bg-white p-2 shadow-sm min-h-[64px]">
+                  <span className="w-6 text-center text-xs font-black text-slate-400 shrink-0" aria-hidden="true">{candidate.id}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-black text-ink truncate uppercase leading-tight">{candidate.name}</div>
+                    <div className="text-[9px] font-bold uppercase text-slate-500 tracking-tighter truncate">{candidate.party}</div>
                   </div>
-                  <div className="text-2xl" aria-label={`Symbol: ${candidate.symbol}`}>{candidate.symbol}</div>
+                  <div className="w-12 text-center text-sm font-black text-civic-navy bg-slate-50 py-1 rounded shrink-0 border border-slate-100" aria-label={`Symbol: ${candidate.symbol}`}>
+                    {candidate.symbol}
+                  </div>
                   <button
                     type="button"
                     disabled={step !== 'ready'}
                     onClick={() => handleVote(candidate)}
-                    className={`h-10 w-10 rounded-full border-2 border-slate-400 shadow-sm transition-all active:scale-95 ${
+                    className={`h-10 w-10 rounded-full border-2 border-slate-400 shadow-sm transition-all shrink-0 active:scale-95 ${
                       step === 'ready' ? 'cursor-pointer bg-eci-saffron hover:bg-orange-600' : 'cursor-not-allowed bg-slate-400 opacity-50'
                     }`}
                     aria-label={`Vote for ${candidate.name} of ${candidate.party}`}
                   />
                 </div>
               ))}
+
             </div>
 
             {step === 'voting' && (
@@ -111,7 +114,10 @@ export function VVPATSimulator() {
                     <div className="mb-2 border-b border-slate-200 pb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                       Voter Verifiable Paper Audit Trail
                     </div>
-                    <div className="my-4 text-4xl" aria-hidden="true">{selected?.symbol}</div>
+                    <div className="my-3 text-2xl font-black text-eci-blue bg-slate-50 py-2 border-y border-slate-100" aria-hidden="true">
+                      {selected?.symbol}
+                    </div>
+
                     <div className="text-lg font-black text-ink">{selected?.name}</div>
                     <div className="text-xs font-bold text-muted uppercase">{selected?.party}</div>
                     <div className="mt-4 text-[8px] text-slate-400 border-t border-dashed pt-2">SR NO: 10000</div>
