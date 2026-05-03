@@ -14,7 +14,8 @@ export function useElectionPlan(profile, election) {
   const nextAction = useMemo(() => getNextAction(steps), [steps]);
   const readiness = useMemo(() => getReadiness(steps), [steps]);
   const daysUntilElection = useMemo(() => (election ? daysUntil(election.nextElection.date) : 0), [election]);
-  const planState = useMemo(() => (profile && election ? getPlanState(profile, election).planState : 'unknown'), [profile, election]);
+  const planState = useMemo(() => (profile && election ? getPlanState(profile, election) : null), [profile, election]);
+
 
   return {
     steps,
