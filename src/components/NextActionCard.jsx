@@ -1,6 +1,8 @@
 import { ArrowUpRight, Sparkles } from 'lucide-react';
+import PropTypes from 'prop-types';
 
-export function NextActionCard({ action }) {
+/** Highlights the next recommended voter action. */
+export function NextActionCard({ action = null }) {
   if (!action) return null;
 
   return (
@@ -22,6 +24,7 @@ export function NextActionCard({ action }) {
         target="_blank"
         rel="noreferrer"
         className="interactive-card mt-5 inline-flex h-11 items-center gap-2 rounded-lg bg-white px-4 text-sm font-bold text-civic-navy hover:bg-blue-50"
+        aria-label={`Open action: ${action.actionLabel}`}
       >
         {action.actionLabel}
         <ArrowUpRight size={17} aria-hidden="true" />
@@ -29,3 +32,13 @@ export function NextActionCard({ action }) {
     </section>
   );
 }
+
+NextActionCard.propTypes = {
+  action: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    urgency: PropTypes.string,
+    actionUrl: PropTypes.string.isRequired,
+    actionLabel: PropTypes.string.isRequired,
+  }),
+};

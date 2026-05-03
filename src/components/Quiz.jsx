@@ -1,53 +1,33 @@
 import { useState } from 'react';
 import { HelpCircle, Trophy, RefreshCcw } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation.js';
+import { QUIZ_QUESTIONS } from '../constants.js';
+import { trackEvent } from '../firebase.js';
 
-const quizQuestions = [
-  {
-    question: 'What is the minimum voting age for Indian citizens?',
-    options: ['16 years', '18 years', '21 years', '25 years'],
-    answer: '18 years'
-  },
-  {
-    question: 'What does EVM stand for?',
-    options: ['Electronic Voting Machine', 'Election Verification Method', 'Electronic Voter Management', 'Efficient Voting Machine'],
-    answer: 'Electronic Voting Machine'
-  },
-  {
-    question: 'In which year was the Election Commission of India founded?',
-    options: ['1947', '1948', '1950', '1952'],
-    answer: '1950'
-  },
-  {
-    question: 'What is the purpose of VVPAT?',
-    options: ['To speed up counting', 'To allow remote voting', 'To provide a paper audit trail', 'To identify bogus voters'],
-    answer: 'To provide a paper audit trail'
-  },
-  {
-    question: 'When does the Model Code of Conduct (MCC) trigger?',
-    options: ['One month before poll', 'On the first day of nomination', 'Immediately after election schedule announcement', 'On the day of result'],
-    answer: 'Immediately after election schedule announcement'
-  }
-];
-
+/** Civic knowledge quiz with scoring and retry support. */
 export function Quiz() {
   const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState('start'); // start, question, result
   const [questionIndex, setQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
 
+  /** Starts or restarts the quiz from the first question. */
   function startQuiz() {
     setQuestionIndex(0);
     setScore(0);
     setCurrentStep('question');
+    trackEvent('quiz_start');
   }
 
+  /** Scores an answer and advances to the next question or result. */
   function handleAnswer(option) {
-    if (option === quizQuestions[questionIndex].answer) {
+    const isCorrect = option === QUIZ_QUESTIONS[questionIndex].answer;
+    if (isCorrect) {
       setScore(s => s + 1);
     }
+    trackEvent('quiz_answer', { question: questionIndex + 1, correct: isCorrect });
 
-    if (questionIndex < quizQuestions.length - 1) {
+    if (questionIndex < QUIZ_QUESTIONS.length - 1) {
       setQuestionIndex(i => i + 1);
     } else {
       setCurrentStep('result');
@@ -78,6 +58,7 @@ export function Quiz() {
             </div>
             <button 
               onClick={startQuiz}
+              aria-label="Start quiz"
               className="bg-indigo-600 text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:bg-indigo-700 transition-all transform hover:scale-105 active:scale-95"
             >
               {t('quiz_start')}
@@ -88,14 +69,15 @@ export function Quiz() {
         {currentStep === 'question' && (
           <div className="w-full space-y-8 animate-fade-in">
             <div className="space-y-2">
-              <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Question {questionIndex + 1} of {quizQuestions.length}</p>
-              <h3 className="text-xl font-bold text-ink leading-tight">{quizQuestions[questionIndex].question}</h3>
+              <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Question {questionIndex + 1} of {QUIZ_QUESTIONS.length}</p>
+              <h3 className="text-xl font-bold text-ink leading-tight">{QUIZ_QUESTIONS[questionIndex].question}</h3>
             </div>
             <div className="grid gap-3 w-full max-w-md mx-auto">
-              {quizQuestions[questionIndex].options.map((option) => (
+              {QUIZ_QUESTIONS[questionIndex].options.map((option) => (
                 <button
                   key={option}
                   onClick={() => handleAnswer(option)}
+                  aria-label={`Answer ${option}`}
                   className="w-full py-4 px-6 bg-white border-2 border-slate-100 rounded-2xl font-bold text-ink hover:border-indigo-600 hover:bg-indigo-50 transition-all text-left"
                 >
                   {option}
@@ -112,13 +94,14 @@ export function Quiz() {
             </div>
             <div>
               <h3 className="text-3xl font-black text-ink mb-1">{t('quiz_score')}</h3>
-              <p className="text-5xl font-black text-indigo-600">{score}/{quizQuestions.length}</p>
+              <p className="text-5xl font-black text-indigo-600">{score}/{QUIZ_QUESTIONS.length}</p>
             </div>
             <p className="text-muted">
-              {score === quizQuestions.length ? "Incredible! You're an election expert!" : score >= 3 ? "Great job! You know your stuff." : "Not bad, but there's room to learn!"}
+              {score === QUIZ_QUESTIONS.length ? "Incredible! You're an election expert!" : score >= 3 ? "Great job! You know your stuff." : "Not bad, but there's room to learn!"}
             </p>
             <button 
               onClick={startQuiz}
+              aria-label="Retry quiz"
               className="flex items-center gap-2 mx-auto text-indigo-600 font-bold hover:underline"
             >
               <RefreshCcw size={16} />

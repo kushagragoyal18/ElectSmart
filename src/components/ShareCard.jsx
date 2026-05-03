@@ -1,20 +1,25 @@
 import { useRef } from 'react';
+import PropTypes from 'prop-types';
 import { Share2, Download, CheckCircle2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { useTranslation } from '../hooks/useTranslation.js';
 import { getStateName, getElectionByState } from '../data/elections.js';
+import { FULL_CIRCLE_DEGREES, READINESS_MAX, SHARE_CARD_SCALE, SHARE_ROTATION_OFFSET } from '../constants.js';
+import { trackEvent } from '../firebase.js';
 
+/** Renders a downloadable and shareable voter readiness card. */
 export function ShareCard({ profile, readiness, nextAction }) {
   const { t } = useTranslation();
   const cardRef = useRef(null);
   const election = getElectionByState(profile.state);
 
+  /** Captures the card as a PNG and downloads it locally. */
   async function handleDownload() {
     if (!cardRef.current) return;
     
     try {
       const canvas = await html2canvas(cardRef.current, {
-        scale: 2, // High resolution
+        scale: SHARE_CARD_SCALE,
         useCORS: true,
         backgroundColor: '#ffffff',
       });
@@ -23,8 +28,21 @@ export function ShareCard({ profile, readiness, nextAction }) {
       link.download = `ElectSmart-Readiness-${profile.state}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
+      trackEvent('download_share_card', { readiness });
     } catch (err) {
-      console.error('Download failed', err);
+      trackEvent('share_card_download_error', { message: err instanceof Error ? err.message : 'unknown' });
+    }
+  }
+
+  /** Uses the browser share sheet when available. */
+  function handleShare() {
+    if (navigator.share) {
+      navigator.share({
+        title: 'I am Election Ready!',
+        text: `My voting readiness score is ${readiness}%! Check yours at ElectSmart.`,
+        url: window.location.href,
+      });
+      trackEvent('share_readiness_card', { readiness });
     }
   }
 
@@ -54,7 +72,7 @@ export function ShareCard({ profile, readiness, nextAction }) {
             <div className="w-40 h-40 rounded-full border-[12px] border-slate-100 flex items-center justify-center relative">
               <div 
                 className="absolute inset-[-12px] rounded-full border-[12px] border-eci-green border-t-transparent border-l-transparent" 
-                style={{ transform: `rotate(${(readiness / 100) * 360 - 45}deg)` }}
+                style={{ transform: `rotate(${(readiness / READINESS_MAX) * FULL_CIRCLE_DEGREES - SHARE_ROTATION_OFFSET}deg)` }}
               />
               <div className="flex flex-col items-center">
                 <span className="text-5xl font-black text-ink">{readiness}%</span>
@@ -74,7 +92,7 @@ export function ShareCard({ profile, readiness, nextAction }) {
 
           <div className="bg-slate-50 rounded-2xl p-4 flex gap-3 items-center text-left border border-slate-100">
             <div className="w-10 h-10 bg-eci-green text-white rounded-full flex items-center justify-center shrink-0 shadow-sm">
-              <CheckCircle2 size={20} />
+              <CheckCircle2 size={20} aria-hidden="true" />
             </div>
             <div>
               <p className="text-[10px] font-bold text-muted uppercase tracking-wider">Next Priority</p>
@@ -92,26 +110,30 @@ export function ShareCard({ profile, readiness, nextAction }) {
       <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-2">
         <button 
           onClick={handleDownload}
+          aria-label="Download readiness card"
           className="flex-1 bg-[#000080] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-800 transition-all shadow-md active:scale-95"
         >
-          <Download size={18} />
+          <Download size={18} aria-hidden="true" />
           Download Card
         </button>
         <button 
-          onClick={() => {
-            if (navigator.share) {
-              navigator.share({
-                title: 'I am Election Ready!',
-                text: `My voting readiness score is ${readiness}%! Check yours at ElectSmart.`,
-                url: window.location.href,
-              });
-            }
-          }}
+          onClick={handleShare}
+          aria-label="Share readiness card"
           className="p-3 bg-white border border-slate-200 text-ink rounded-xl hover:bg-slate-100 transition-colors"
         >
-          <Share2 size={20} />
+          <Share2 size={20} aria-hidden="true" />
         </button>
       </div>
     </div>
   );
 }
+
+ShareCard.propTypes = {
+  profile: PropTypes.shape({
+    state: PropTypes.string.isRequired,
+  }).isRequired,
+  readiness: PropTypes.number.isRequired,
+  nextAction: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+  }).isRequired,
+};

@@ -1,10 +1,12 @@
 import { daysUntil, formatDate, isPast } from './date.js';
+import { GOOGLE_MAPS_SEARCH_BASE_URL, MIN_VOTER_AGE } from '../constants.js';
 
+/** Builds normalized plan-state flags from a profile and election record. */
 export function getPlanState(profile, election) {
   if (!profile || !election) return null;
 
   const age = Number(profile.age);
-  const isEligible = age >= 18;
+  const isEligible = age >= MIN_VOTER_AGE;
   const isRegistered = profile.registrationStatus === 'registered';
   const isUnsure = profile.registrationStatus === 'unsure';
   const deadlineDays = daysUntil(election.registration.deadline);
@@ -23,6 +25,7 @@ export function getPlanState(profile, election) {
   };
 }
 
+/** Returns the roadmap status for registration-related work. */
 function getRegistrationStatus(planState) {
   if (!planState.isEligible) return 'locked';
   if (planState.isRegistered) return 'completed';
@@ -31,10 +34,12 @@ function getRegistrationStatus(planState) {
   return 'pending';
 }
 
+/** Returns whether the voter still needs to register. */
 function requiresRegistration(planState) {
   return planState.isEligible && !planState.isRegistered && !planState.isUnsure;
 }
 
+/** Builds the personalized voter readiness roadmap. */
 export function buildRoadmap(profile, election) {
   if (!profile || !election) return [];
 
@@ -95,7 +100,7 @@ export function buildRoadmap(profile, election) {
       status: planState.isRegistered ? 'pending' : 'locked',
       priority: false,
       actionLabel: 'Open booth locator',
-      actionUrl: `https://www.google.com/maps/search/${encodeURIComponent(election.pollingSearch)}`,
+      actionUrl: `${GOOGLE_MAPS_SEARCH_BASE_URL}/${encodeURIComponent(election.pollingSearch)}`,
     },
     {
       id: 'candidates',
@@ -123,7 +128,7 @@ export function buildRoadmap(profile, election) {
       priority: planState.isRegistered && planState.electionDays <= 7 && !planState.electionPassed,
       urgency: `${Math.max(planState.electionDays, 0)} day(s) until polling`,
       actionLabel: 'Find polling booth',
-      actionUrl: `https://www.google.com/maps/search/${encodeURIComponent(election.pollingSearch)}`,
+      actionUrl: `${GOOGLE_MAPS_SEARCH_BASE_URL}/${encodeURIComponent(election.pollingSearch)}`,
     },
     {
       id: 'vvpat',
@@ -149,10 +154,12 @@ export function buildRoadmap(profile, election) {
   return steps.filter((step) => !step.hidden);
 }
 
+/** Selects the highest-priority next action from roadmap steps. */
 export function getNextAction(steps) {
   return steps.find((step) => step.priority) ?? steps.find((step) => step.status === 'pending') ?? steps[0];
 }
 
+/** Calculates readiness from completed actionable roadmap steps. */
 export function getReadiness(steps) {
   if (!steps.length) return 0;
   const actionable = steps.filter((step) => step.status !== 'locked');

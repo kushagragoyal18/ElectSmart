@@ -144,6 +144,7 @@ export const assistantTree = {
   },
 };
 
+/** Resolves a dynamic assistant node response for the active voter context. */
 export function resolveAssistantMessage(node, context) {
   return typeof node.message === 'function' ? node.message(context) : node.message;
 }

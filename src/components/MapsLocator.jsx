@@ -1,8 +1,11 @@
 import { MapPinned } from 'lucide-react';
+import PropTypes from 'prop-types';
+import { GOOGLE_MAPS_EMBED_BASE_URL, GOOGLE_MAPS_SEARCH_BASE_URL } from '../constants.js';
 
+/** Embeds Google Maps polling booth search and opens the full map. */
 export function MapsLocator({ election }) {
-  const mapUrl = `https://www.google.com/maps?q=${encodeURIComponent(election.pollingSearch)}&output=embed`;
-  const externalUrl = `https://www.google.com/maps/search/${encodeURIComponent(election.pollingSearch)}`;
+  const mapUrl = `${GOOGLE_MAPS_EMBED_BASE_URL}?q=${encodeURIComponent(election.pollingSearch)}&output=embed`;
+  const externalUrl = `${GOOGLE_MAPS_SEARCH_BASE_URL}/${encodeURIComponent(election.pollingSearch)}`;
 
   return (
     <section className="premium-card p-5">
@@ -27,9 +30,16 @@ export function MapsLocator({ election }) {
         target="_blank"
         rel="noreferrer"
         className="interactive-card mt-4 inline-flex h-10 items-center rounded-lg bg-civic-blue px-4 text-sm font-bold text-white hover:bg-civic-navy"
+        aria-label="Open polling booth search in Google Maps"
       >
         Open in Google Maps
       </a>
     </section>
   );
 }
+
+MapsLocator.propTypes = {
+  election: PropTypes.shape({
+    pollingSearch: PropTypes.string.isRequired,
+  }).isRequired,
+};

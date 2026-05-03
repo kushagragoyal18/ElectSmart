@@ -1,8 +1,10 @@
 import { CalendarDays, Landmark, MapPin, ShieldCheck, UsersRound } from 'lucide-react';
+import PropTypes from 'prop-types';
 import { getStateName } from '../data/elections.js';
 import { formatDate } from '../utils/date.js';
 import { ProgressBar } from './ProgressBar.jsx';
 
+/** Summarizes the selected election and voter readiness state. */
 export function ElectionSummary({ profile, election, countdown, readiness }) {
   return (
     <section className="rounded-xl border border-eci-saffron/20 bg-white p-6 shadow-soft relative overflow-hidden">
@@ -62,3 +64,23 @@ export function ElectionSummary({ profile, election, countdown, readiness }) {
     </section>
   );
 }
+
+ElectionSummary.propTypes = {
+  profile: PropTypes.shape({
+    state: PropTypes.string.isRequired,
+  }).isRequired,
+  election: PropTypes.shape({
+    assemblySeats: PropTypes.number,
+    lokSabhaSeats: PropTypes.number,
+    nextElection: PropTypes.shape({
+      title: PropTypes.string.isRequired,
+      date: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired,
+      phase: PropTypes.string.isRequired,
+      year: PropTypes.number.isRequired,
+      dateStatus: PropTypes.string.isRequired,
+    }).isRequired,
+  }).isRequired,
+  countdown: PropTypes.number.isRequired,
+  readiness: PropTypes.number.isRequired,
+};

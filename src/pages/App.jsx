@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ElectionSummary } from '../components/ElectionSummary.jsx';
 import { MapsLocator } from '../components/MapsLocator.jsx';
 import { NextActionCard } from '../components/NextActionCard.jsx';
@@ -15,8 +15,18 @@ import { ShareCard } from '../components/ShareCard.jsx';
 import { useVoterProfile } from '../context/VoterProfileContext.jsx';
 import { useElectionPlan } from '../hooks/useElectionPlan.js';
 import { useTranslation } from '../hooks/useTranslation.js';
+import { APP_TABS } from '../constants.js';
+import { trackEvent } from '../firebase.js';
 import { LayoutDashboard, BookOpen, HelpCircle, Calendar, Share2, X } from 'lucide-react';
 
+const TAB_ICONS = {
+  dashboard: LayoutDashboard,
+  timeline: Calendar,
+  learn: BookOpen,
+  quiz: HelpCircle,
+};
+
+/** Renders the main ElectSmart application shell and tabbed dashboard. */
 export function App() {
   const { profile, setProfile, resetProfile } = useVoterProfile();
   const { t } = useTranslation();
@@ -24,12 +34,17 @@ export function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showShareModal, setShowShareModal] = useState(false);
 
-  const tabs = [
-    { id: 'dashboard', label: t('app_title'), icon: LayoutDashboard },
-    { id: 'timeline', label: t('timeline_tab'), icon: Calendar },
-    { id: 'learn', label: t('learn_tab'), icon: BookOpen },
-    { id: 'quiz', label: t('quiz_tab'), icon: HelpCircle },
-  ];
+  const tabs = APP_TABS.map((tab) => ({ ...tab, label: t(tab.translationKey), icon: TAB_ICONS[tab.id] }));
+
+  useEffect(() => {
+    trackEvent('page_view', { page_title: 'ElectSmart Home', tab: activeTab });
+  }, [activeTab]);
+
+  /** Updates the selected dashboard tab and tracks the interaction. */
+  function selectTab(tabId) {
+    setActiveTab(tabId);
+    trackEvent('select_tab', { tab: tabId });
+  }
 
   return (
     <Shell hasProfile={Boolean(profile)} onReset={resetProfile}>
@@ -44,7 +59,9 @@ export function App() {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => selectTab(tab.id)}
+                  aria-label={`Open ${tab.label}`}
+                  aria-current={activeTab === tab.id ? 'page' : undefined}
                   className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-bold text-sm transition-all whitespace-nowrap ${
                     activeTab === tab.id 
                       ? 'bg-[#000080] text-white shadow-md' 
@@ -71,6 +88,7 @@ export function App() {
                     />
                     <button 
                       onClick={() => setShowShareModal(true)}
+                      aria-label="Open share readiness card"
                       className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/30 text-white rounded-full transition-colors"
                       title={t('share')}
                     >
@@ -81,6 +99,7 @@ export function App() {
                   
                   <button 
                     onClick={() => setShowShareModal(true)}
+                    aria-label="Open share readiness card"
                     className="w-full premium-card py-4 flex items-center justify-center gap-3 text-civic-navy font-black hover:bg-slate-50 transition-all group"
                   >
                     <div className="p-2 bg-slate-100 rounded-lg group-hover:bg-civic-blue group-hover:text-white transition-colors">
@@ -127,6 +146,7 @@ export function App() {
           <div className="relative w-full max-w-sm">
             <button 
               onClick={() => setShowShareModal(false)}
+              aria-label="Close share readiness card"
               className="absolute -top-12 right-0 p-2 text-white hover:text-eci-saffron transition-colors"
             >
               <X size={32} />

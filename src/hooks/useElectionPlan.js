@@ -2,6 +2,7 @@ import { getElectionByState } from '../data/elections.js';
 import { daysUntil } from '../utils/date.js';
 import { buildRoadmap, getNextAction, getPlanState, getReadiness } from '../utils/roadmap.js';
 
+/** Derives all election planning data for a voter profile. */
 export function useElectionPlan(profile) {
   const election = profile ? getElectionByState(profile.state) : null;
   const steps = profile && election ? buildRoadmap(profile, election) : [];

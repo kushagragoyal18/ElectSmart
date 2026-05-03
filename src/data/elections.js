@@ -1,11 +1,13 @@
 const nationalPortal = 'https://voters.eci.gov.in/';
 
+/** Returns a date string offset by a number of days. */
 function offsetDate(dateString, days) {
   const date = new Date(`${dateString}T00:00:00`);
   date.setDate(date.getDate() + days);
   return date.toISOString().slice(0, 10);
 }
 
+/** Creates a normalized assembly election record. */
 function assembly({
   id,
   name,
@@ -48,6 +50,7 @@ function assembly({
   };
 }
 
+/** Creates a normalized Lok Sabha election record. */
 function lokSabha({ id, name, category = 'Union Territory', lokSabhaSeats, date = '2029-04-15' }) {
   return {
     id,
@@ -130,14 +133,17 @@ const legacyAliases = {
   TamilNadu: 'tamil-nadu',
 };
 
+/** Normalizes legacy or display state identifiers into canonical ids. */
 export function normalizeStateId(stateId) {
   return legacyAliases[stateId] ?? stateId;
 }
 
+/** Returns the election record for a state id. */
 export function getElectionByState(stateId) {
   return electionData[normalizeStateId(stateId)] ?? null;
 }
 
+/** Returns a human-readable state or union territory name. */
 export function getStateName(stateId) {
   return getElectionByState(stateId)?.name ?? stateId;
 }

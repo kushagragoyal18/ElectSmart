@@ -1,8 +1,10 @@
 import { Calendar, CheckCircle2, Circle } from 'lucide-react';
+import PropTypes from 'prop-types';
 import { useTranslation } from '../hooks/useTranslation.js';
 import { formatDate, isPast } from '../utils/date.js';
 
-export function TimelineVisualizer({ election }) {
+/** Displays election milestones in chronological order. */
+export function TimelineVisualizer({ election = null }) {
   const { t } = useTranslation();
 
   if (!election || !election.timeline) return null;
@@ -98,3 +100,18 @@ export function TimelineVisualizer({ election }) {
     </section>
   );
 }
+
+TimelineVisualizer.propTypes = {
+  election: PropTypes.shape({
+    name: PropTypes.string,
+    timeline: PropTypes.shape({
+      announcement: PropTypes.string,
+      registration: PropTypes.string,
+      nomination: PropTypes.string,
+      campaign: PropTypes.string,
+      polling: PropTypes.string,
+      counting: PropTypes.string,
+      results: PropTypes.string,
+    }),
+  }),
+};

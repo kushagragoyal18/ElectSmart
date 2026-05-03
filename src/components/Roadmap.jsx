@@ -1,4 +1,5 @@
 import { CheckCircle2, Clock3, LockKeyhole } from 'lucide-react';
+import PropTypes from 'prop-types';
 
 const statusConfig = {
   completed: {
@@ -18,6 +19,7 @@ const statusConfig = {
   },
 };
 
+/** Lists the user's personalized voter readiness steps. */
 export function Roadmap({ steps }) {
   return (
     <section className="bg-white rounded-xl border border-eci-yellow-border p-6 shadow-sm">
@@ -29,6 +31,7 @@ export function Roadmap({ steps }) {
         </div>
       </div>
       <div className="space-y-4">
+        {steps.length === 0 && <p className="text-sm text-muted">No roadmap steps are available yet.</p>}
         {steps.map((step) => {
           const config = statusConfig[step.status];
           const Icon = config.icon;
@@ -67,3 +70,13 @@ export function Roadmap({ steps }) {
     </section>
   );
 }
+
+Roadmap.propTypes = {
+  steps: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    status: PropTypes.oneOf(['completed', 'pending', 'locked']).isRequired,
+    priority: PropTypes.bool,
+  })).isRequired,
+};

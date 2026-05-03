@@ -1,13 +1,21 @@
 import { BadgeCheck, RotateCcw, Languages } from 'lucide-react';
+import PropTypes from 'prop-types';
 import { useVoterProfile } from '../context/VoterProfileContext.jsx';
 import { useTranslation } from '../hooks/useTranslation.js';
 
-export function Shell({ children, onReset, hasProfile }) {
+/** Provides the shared page chrome, accessibility links, and language control. */
+export function Shell({ children, onReset = undefined, hasProfile = false }) {
   const { language, setLanguage } = useVoterProfile();
   const { t } = useTranslation();
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f8f9fa]">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-civic-navy focus:shadow"
+      >
+        Skip to main content
+      </a>
       {hasProfile && <div className="chakra-watermark pointer-events-none fixed -right-24 top-28 h-80 w-80 opacity-70" />}
       
       {/* Utility Bar */}
@@ -15,7 +23,7 @@ export function Shell({ children, onReset, hasProfile }) {
         <div className="bg-[#1a1a1a] text-white py-1.5 px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl flex justify-between items-center text-[11px] font-bold tracking-wider uppercase">
             <div className="flex gap-4 items-center">
-              <span className="hover:text-eci-saffron cursor-pointer transition-colors">Skip to Main Content</span>
+              <a href="#main-content" className="hover:text-eci-saffron transition-colors">Skip to Main Content</a>
               <span className="h-3 w-px bg-white/20" />
               <span className="hover:text-eci-saffron cursor-pointer transition-colors">Screen Reader Access</span>
             </div>
@@ -28,6 +36,7 @@ export function Shell({ children, onReset, hasProfile }) {
               <div className="flex gap-3 items-center">
                 <button 
                   onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
+                  aria-label="Toggle language"
                   className="flex items-center gap-1.5 hover:text-eci-saffron transition-colors uppercase"
                 >
                   <Languages size={14} />
@@ -56,6 +65,7 @@ export function Shell({ children, onReset, hasProfile }) {
             <button
               type="button"
               onClick={onReset}
+              aria-label="Start over and clear voter profile"
               className="inline-flex h-9 items-center gap-2 rounded-lg border-2 border-eci-saffron bg-white px-4 text-xs font-bold text-eci-saffron transition-all hover:bg-eci-saffron hover:text-white"
             >
               <RotateCcw size={14} aria-hidden="true" />
@@ -65,7 +75,13 @@ export function Shell({ children, onReset, hasProfile }) {
         </div>
         {hasProfile && <div className="tricolor-bar" />}
       </header>
-      <main className={hasProfile ? "mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8" : ""}>{children}</main>
+      <main id="main-content" tabIndex={-1} className={hasProfile ? "mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8" : ""}>{children}</main>
     </div>
   );
 }
+
+Shell.propTypes = {
+  children: PropTypes.node.isRequired,
+  onReset: PropTypes.func,
+  hasProfile: PropTypes.bool,
+};
