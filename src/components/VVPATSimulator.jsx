@@ -63,21 +63,22 @@ export function VVPATSimulator() {
             />
           </div>
 
-          <div className="rounded-b-lg border-x border-b border-slate-300 bg-slate-100 p-4 shadow-inner">
-            <div className="space-y-2">
+          <div className="rounded-b-lg border-x border-b border-slate-300 bg-slate-100 p-4 shadow-inner min-w-[320px]">
+            <div className="space-y-3">
+
               {EVM_CANDIDATES.map((candidate) => (
-                <div key={candidate.id} className="grid grid-cols-[30px_1fr_60px_48px] items-center gap-2 rounded border border-slate-300 bg-white p-2 shadow-sm">
+                <div key={candidate.id} className="grid grid-cols-[24px_1fr_48px_40px] items-center gap-2 rounded border border-slate-300 bg-white p-2 shadow-sm">
                   {/* ID */}
                   <span className="text-center text-[10px] font-black text-slate-400" aria-hidden="true">{candidate.id}</span>
                   
                   {/* Name & Party */}
                   <div className="min-w-0 border-x border-slate-100 px-2">
-                    <div className="truncate text-[11px] font-black leading-tight text-ink uppercase">{candidate.name}</div>
-                    <div className="truncate text-[8px] font-bold tracking-tighter text-slate-500 uppercase">{candidate.party}</div>
+                    <div className="truncate text-[10px] font-black leading-tight text-ink uppercase">{candidate.name}</div>
+                    <div className="truncate text-[7px] font-bold tracking-tighter text-slate-500 uppercase">{candidate.party}</div>
                   </div>
 
                   {/* Symbol */}
-                  <div className="flex items-center justify-center text-2xl" aria-label={`Symbol: ${candidate.symbol}`}>
+                  <div className="flex items-center justify-center text-xl" aria-label={`Symbol: ${candidate.symbol}`}>
                     {candidate.symbol}
                   </div>
 
@@ -86,7 +87,7 @@ export function VVPATSimulator() {
                     type="button"
                     disabled={step !== 'ready'}
                     onClick={() => handleVote(candidate)}
-                    className={`h-10 w-10 rounded-full border-2 border-slate-400 shadow-lg transition-all active:scale-90 active:shadow-inner ${
+                    className={`h-9 w-9 rounded-full border-2 border-slate-400 shadow-md transition-all active:scale-90 active:shadow-inner ${
                       step === 'ready' 
                         ? 'cursor-pointer bg-eci-saffron hover:bg-orange-600 ring-2 ring-transparent hover:ring-orange-200' 
                         : 'cursor-not-allowed bg-slate-400 opacity-50'
@@ -94,6 +95,7 @@ export function VVPATSimulator() {
                     aria-label={`Vote for ${candidate.name} of ${candidate.party}`}
                   />
                 </div>
+
               ))}
 
 
