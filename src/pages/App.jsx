@@ -116,14 +116,10 @@ export function App() {
                   />
                 </ErrorBoundary>
                 
-                <div className="grid gap-8 md:grid-cols-2">
-                  <ErrorBoundary componentName="NextActionCard">
-                    <NextActionCard action={plan.nextAction} />
-                  </ErrorBoundary>
-                  <ErrorBoundary componentName="VVPATSimulator">
-                    <VVPATSimulator />
-                  </ErrorBoundary>
-                </div>
+                <ErrorBoundary componentName="VVPATSimulator">
+                  <VVPATSimulator />
+                </ErrorBoundary>
+
 
                 <ErrorBoundary componentName="Roadmap">
                   <Roadmap steps={plan.steps} />
