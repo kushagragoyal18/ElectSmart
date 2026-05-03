@@ -66,27 +66,36 @@ export function VVPATSimulator() {
           <div className="rounded-b-lg border-x border-b border-slate-300 bg-slate-100 p-4 shadow-inner">
             <div className="space-y-2">
               {EVM_CANDIDATES.map((candidate) => (
-                <div key={candidate.id} className="flex items-center gap-2 rounded border border-slate-300 bg-white p-2 shadow-sm min-h-[64px]">
-                  <span className="w-6 text-center text-xs font-black text-slate-400 shrink-0" aria-hidden="true">{candidate.id}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[13px] font-black text-ink truncate uppercase leading-tight">{candidate.name}</div>
-                    <div className="text-[9px] font-bold uppercase text-slate-500 tracking-tighter truncate">{candidate.party}</div>
+                <div key={candidate.id} className="grid grid-cols-[30px_1fr_60px_48px] items-center gap-2 rounded border border-slate-300 bg-white p-2 shadow-sm">
+                  {/* ID */}
+                  <span className="text-center text-[10px] font-black text-slate-400" aria-hidden="true">{candidate.id}</span>
+                  
+                  {/* Name & Party */}
+                  <div className="min-w-0 border-x border-slate-100 px-2">
+                    <div className="truncate text-[11px] font-black leading-tight text-ink uppercase">{candidate.name}</div>
+                    <div className="truncate text-[8px] font-bold tracking-tighter text-slate-500 uppercase">{candidate.party}</div>
                   </div>
-                  <div className="w-12 text-center text-2xl shrink-0" aria-label={`Symbol: ${candidate.symbol}`}>
+
+                  {/* Symbol */}
+                  <div className="flex items-center justify-center text-2xl" aria-label={`Symbol: ${candidate.symbol}`}>
                     {candidate.symbol}
                   </div>
 
+                  {/* Button */}
                   <button
                     type="button"
                     disabled={step !== 'ready'}
                     onClick={() => handleVote(candidate)}
-                    className={`h-10 w-10 rounded-full border-2 border-slate-400 shadow-sm transition-all shrink-0 active:scale-95 ${
-                      step === 'ready' ? 'cursor-pointer bg-eci-saffron hover:bg-orange-600' : 'cursor-not-allowed bg-slate-400 opacity-50'
+                    className={`h-10 w-10 rounded-full border-2 border-slate-400 shadow-lg transition-all active:scale-90 active:shadow-inner ${
+                      step === 'ready' 
+                        ? 'cursor-pointer bg-eci-saffron hover:bg-orange-600 ring-2 ring-transparent hover:ring-orange-200' 
+                        : 'cursor-not-allowed bg-slate-400 opacity-50'
                     }`}
                     aria-label={`Vote for ${candidate.name} of ${candidate.party}`}
                   />
                 </div>
               ))}
+
 
             </div>
 
