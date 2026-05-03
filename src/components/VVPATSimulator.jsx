@@ -72,9 +72,10 @@ export function VVPATSimulator() {
                     <div className="text-[13px] font-black text-ink truncate uppercase leading-tight">{candidate.name}</div>
                     <div className="text-[9px] font-bold uppercase text-slate-500 tracking-tighter truncate">{candidate.party}</div>
                   </div>
-                  <div className="w-12 text-center text-sm font-black text-civic-navy bg-slate-50 py-1 rounded shrink-0 border border-slate-100" aria-label={`Symbol: ${candidate.symbol}`}>
+                  <div className="w-12 text-center text-2xl shrink-0" aria-label={`Symbol: ${candidate.symbol}`}>
                     {candidate.symbol}
                   </div>
+
                   <button
                     type="button"
                     disabled={step !== 'ready'}
@@ -114,9 +115,10 @@ export function VVPATSimulator() {
                     <div className="mb-2 border-b border-slate-200 pb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                       Voter Verifiable Paper Audit Trail
                     </div>
-                    <div className="my-3 text-2xl font-black text-eci-blue bg-slate-50 py-2 border-y border-slate-100" aria-hidden="true">
+                    <div className="my-4 text-4xl" aria-hidden="true">
                       {selected?.symbol}
                     </div>
+
 
                     <div className="text-lg font-black text-ink">{selected?.name}</div>
                     <div className="text-xs font-bold text-muted uppercase">{selected?.party}</div>

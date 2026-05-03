@@ -92,12 +92,13 @@ export const QUIZ_QUESTIONS = [
 ];
 
 export const EVM_CANDIDATES = [
-  { id: 1, name: 'Aditya Sharma', symbol: 'Sun', party: 'Lok Dal' },
-  { id: 2, name: 'Priya Verma', symbol: 'Lotus', party: 'Swatantra Party' },
-  { id: 3, name: 'Rajesh Kumar', symbol: 'Elephant', party: 'Bahujan Sangam' },
-  { id: 4, name: 'Meera Singh', symbol: 'Bicycle', party: 'Rashtriya Vikas' },
-  { id: 5, name: 'NOTA', nameAlt: 'None of the Above', symbol: 'X', party: 'Independent' },
+  { id: 1, name: 'Aditya Sharma', symbol: '☀️', party: 'Lok Dal' },
+  { id: 2, name: 'Priya Verma', symbol: '🪷', party: 'Swatantra Party' },
+  { id: 3, name: 'Rajesh Kumar', symbol: '🐘', party: 'Bahujan Sangam' },
+  { id: 4, name: 'Meera Singh', symbol: '🚲', party: 'Rashtriya Vikas' },
+  { id: 5, name: 'NOTA', nameAlt: 'None of the Above', symbol: '❌', party: 'Independent' },
 ];
+
 
 export const EDUCATION_CARDS = [
   {

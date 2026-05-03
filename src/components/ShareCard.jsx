@@ -173,7 +173,8 @@ export function ShareCard({ profile, readiness, nextAction }) {
             </div>
             <div>
               <p className="text-[10px] font-bold text-muted uppercase tracking-wider">Next Priority</p>
-              <p className="text-sm font-bold text-ink">{nextAction.title}</p>
+              <p className="text-sm font-bold text-ink">{nextAction?.title || 'Ready to Vote'}</p>
+
             </div>
           </div>
         </div>
