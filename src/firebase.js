@@ -1,5 +1,8 @@
 import { initializeApp } from 'firebase/app';
 import { getAnalytics, isSupported, logEvent } from 'firebase/analytics';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -11,8 +14,11 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-const hasFirebaseConfig = Boolean(firebaseConfig.apiKey && firebaseConfig.appId && firebaseConfig.projectId);
-const app = hasFirebaseConfig ? initializeApp(firebaseConfig) : null;
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
 let analyticsPromise;
 
 /**
@@ -20,7 +26,6 @@ let analyticsPromise;
  * @returns {Promise<import('firebase/analytics').Analytics|null>}
  */
 export async function getFirebaseAnalytics() {
-  if (!app) return null;
   analyticsPromise ??= isSupported().then((supported) => (supported ? getAnalytics(app) : null));
   return analyticsPromise;
 }
@@ -38,4 +43,5 @@ export async function trackEvent(eventName, params = {}) {
   }
 }
 
-export { app as firebaseApp };
+export { app, auth, db, storage };
+

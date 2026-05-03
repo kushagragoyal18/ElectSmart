@@ -2,3 +2,7 @@ config.js
 node_modules/
 dist/
 *.log
+.env
+coverage/
+
+

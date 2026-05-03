@@ -20,6 +20,27 @@ export const YOUTUBE_WATCH_BASE_URL = 'https://www.youtube.com/watch';
 export const YOUTUBE_THUMBNAIL_BASE_URL = 'https://img.youtube.com/vi';
 export const ONBOARDING_BACKGROUND_URL = 'https://akm-img-a-in.tosshub.com/indiatoday/images/story/202412/jharkhand-assembly-election-1st-phase-voting-13th-november-125945963-16x9.png?VersionId=b_gEd06hG6jod7XCJabjLyhqZBeSeqi_&size=690:388';
 
+export const UI_STRINGS = {
+  START: 'START',
+  ECI_NAME: 'Election Commission of India',
+  SATYAMEV_JAYATE: 'सत्यमेव जयते',
+  STATE_EMBLEM_ALT: 'State Emblem of India',
+  BETA_TAG: 'BETA',
+  OFFICIAL_SITE: 'https://voters.eci.gov.in',
+  SKIP_TO_CONTENT: 'Skip to main content',
+  SCREEN_READER_ACCESS: 'Screen Reader Access',
+  LOGOUT: 'Logout',
+  SIGN_IN_GOOGLE: 'Sign In with Google',
+  START_OVER: 'START OVER',
+};
+
+export const ERRORS = {
+  STATE_REQUIRED: 'Choose a valid state or union territory.',
+  INVALID_AGE: (min, max) => `Enter an age between ${min} and ${max}.`,
+  GENERIC_ERROR: 'Something went wrong. Please try again.',
+  FIRESTORE_ERROR: 'Unable to save your data. Please check your connection.',
+};
+
 export const REGISTRATION_STATUS = {
   REGISTERED: 'registered',
   NOT_REGISTERED: 'not_registered',
@@ -123,3 +144,4 @@ export const VIDEO_DATA = [
   { id: 'mKrn9RBmwFw', title: 'VVPAT Explained' },
   { id: '_th8zOh29xc', title: 'Election Process Overview' },
 ];
+

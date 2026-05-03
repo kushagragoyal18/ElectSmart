@@ -1,45 +1,45 @@
-import { MapPinned } from 'lucide-react';
+import { Map, ExternalLink } from 'lucide-react';
 import PropTypes from 'prop-types';
-import { GOOGLE_MAPS_EMBED_BASE_URL, GOOGLE_MAPS_SEARCH_BASE_URL } from '../constants.js';
+import { GOOGLE_MAPS_SEARCH_BASE_URL } from '../constants.js';
+import { trackEvent } from '../firebase.js';
 
-/** Embeds Google Maps polling booth search and opens the full map. */
-export function MapsLocator({ election }) {
-  const mapUrl = `${GOOGLE_MAPS_EMBED_BASE_URL}?q=${encodeURIComponent(election.pollingSearch)}&output=embed`;
-  const externalUrl = `${GOOGLE_MAPS_SEARCH_BASE_URL}/${encodeURIComponent(election.pollingSearch)}`;
+/**
+ * Component to locate nearby polling booths using Google Maps.
+ * @param {Object} props
+ * @param {string} props.state - Current user's state for search context.
+ */
+export function MapsLocator({ state }) {
+  /**
+   * Tracks when a user opens Google Maps.
+   */
+  const handleOpenMaps = () => {
+    trackEvent('open_maps_click', { search_state: state });
+    window.open(`${GOOGLE_MAPS_SEARCH_BASE_URL}/polling+booth+near+me+in+${state}`, '_blank');
+  };
 
   return (
-    <section className="premium-card p-5">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-extrabold text-ink">Polling booth locator</h2>
-          <p className="mt-1 text-sm text-muted">Google Maps integration for nearby booth search.</p>
+    <section className="premium-card p-6 border-l-4 border-eci-blue">
+      <div className="flex flex-col gap-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-eci-sky-bg text-eci-blue shadow-sm">
+          <Map size={24} aria-hidden="true" />
         </div>
-        <MapPinned className="text-civic-blue" size={24} aria-hidden="true" />
+        <div>
+          <h2 className="text-xl font-extrabold text-ink">Find Your Booth</h2>
+          <p className="text-sm text-muted mt-1 leading-relaxed">Locate your designated polling station on Google Maps for your area.</p>
+        </div>
+        <button
+          onClick={handleOpenMaps}
+          aria-label="Find polling booth near me on Google Maps"
+          className="mt-2 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white border-2 border-eci-blue text-eci-blue font-black hover:bg-eci-sky-bg transition-all shadow-sm active:scale-95"
+        >
+          Open Google Maps
+          <ExternalLink size={18} aria-hidden="true" />
+        </button>
       </div>
-      <div className="overflow-hidden rounded-lg border border-civic-line shadow-sm">
-        <iframe
-          title="Google Maps polling booth locator"
-          src={mapUrl}
-          className="h-64 w-full"
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        />
-      </div>
-      <a
-        href={externalUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="interactive-card mt-4 inline-flex h-10 items-center rounded-lg bg-civic-blue px-4 text-sm font-bold text-white hover:bg-civic-navy"
-        aria-label="Open polling booth search in Google Maps"
-      >
-        Open in Google Maps
-      </a>
     </section>
   );
 }
 
 MapsLocator.propTypes = {
-  election: PropTypes.shape({
-    pollingSearch: PropTypes.string.isRequired,
-  }).isRequired,
+  state: PropTypes.string.isRequired,
 };

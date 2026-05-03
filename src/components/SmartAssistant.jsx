@@ -10,7 +10,80 @@ import { assistantTree, resolveAssistantMessage } from '../utils/assistantTree.j
 import { useTranslation } from '../hooks/useTranslation.js';
 import { trackEvent } from '../firebase.js';
 
-/** Interactive assistant for voter questions and personalized guidance. */
+/**
+ * Renders the header for the Smart Assistant.
+ */
+function AssistantHeader() {
+  const { t } = useTranslation();
+  return (
+    <div className="p-5 border-b border-slate-100">
+      <div className="flex items-center gap-3">
+        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#000080] text-white shadow-sm">
+          <Bot size={22} aria-hidden="true" />
+        </div>
+        <div>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-extrabold text-ink">{t('assistant_title')}</h2>
+            <Sparkles size={16} className="text-eci-saffron" aria-hidden="true" />
+          </div>
+          <p className="text-sm text-muted">{t('assistant_subtitle')}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Renders a list of chat messages.
+ * @param {Object} props
+ * @param {Array} props.messages - Array of message objects.
+ * @param {boolean} props.isTyping - Whether the assistant is currently typing.
+ * @param {React.RefObject} props.scrollRef - Ref for the scroll container.
+ */
+function MessageList({ messages, isTyping, scrollRef }) {
+  return (
+    <div 
+      ref={scrollRef}
+      className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50"
+    >
+      {messages.map((message, index) => (
+        <div
+          key={index}
+          className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+        >
+          <div
+            className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${
+              message.role === 'user' 
+                ? 'bg-[#000080] text-white rounded-tr-none' 
+                : 'bg-white text-ink rounded-tl-none border border-slate-100'
+            }`}
+          >
+            {message.text}
+          </div>
+        </div>
+      ))}
+      {isTyping && (
+        <div className="flex justify-start">
+          <div className="bg-white border border-slate-100 rounded-2xl rounded-tl-none px-4 py-2.5 flex gap-1 shadow-sm">
+            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" />
+            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.2s]" />
+            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.4s]" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+MessageList.propTypes = {
+  messages: PropTypes.arrayOf(PropTypes.object).isRequired,
+  isTyping: PropTypes.bool.isRequired,
+  scrollRef: PropTypes.object.isRequired,
+};
+
+/**
+ * Interactive assistant for voter questions and personalized guidance.
+ */
 export function SmartAssistant({ profile, election, nextAction = null, planState }) {
   const { t } = useTranslation();
   const [nodeId, setNodeId] = useState('start');
@@ -39,7 +112,11 @@ export function SmartAssistant({ profile, election, nextAction = null, planState
     }
   }, [messages, isTyping]);
 
-  /** Finds the assistant knowledge node that best matches free text. */
+  /**
+   * Finds the assistant knowledge node that best matches free text.
+   * @param {string} text - User input text.
+   * @returns {string|null} - Node ID or null.
+   */
   function findNextNode(text) {
     const input = text.toLowerCase();
     if (input.includes('eligible') || input.includes('age') || input.includes('yogyata')) return 'start';
@@ -53,7 +130,11 @@ export function SmartAssistant({ profile, election, nextAction = null, planState
     return null;
   }
 
-  /** Sends a user message and appends the assistant response. */
+  /**
+   * Sends a user message and appends the assistant response.
+   * @param {React.FormEvent} [e] - Form event.
+   * @param {string} [text] - Text to send.
+   */
   async function handleSend(e, text = null) {
     if (e) e.preventDefault();
     const userText = text || inputValue.trim();
@@ -62,6 +143,7 @@ export function SmartAssistant({ profile, election, nextAction = null, planState
     setHasSentMessage(true);
     setInputValue('');
     setMessages((prev) => [...prev, { role: 'user', text: userText }]);
+    trackEvent('assistant_message_sent', { text: userText });
 
     setIsTyping(true);
     
@@ -75,10 +157,10 @@ export function SmartAssistant({ profile, election, nextAction = null, planState
       setNodeId(nextNodeId);
       const nextNode = assistantTree[nextNodeId];
       assistantText = resolveAssistantMessage(nextNode, { profile, election, nextAction, planState });
-      trackEvent('assistant_question', { topic: nextNodeId });
+      trackEvent('assistant_response', { topic: nextNodeId });
     } else {
       assistantText = ASSISTANT_FALLBACK_MESSAGE;
-      trackEvent('assistant_question', { topic: 'fallback' });
+      trackEvent('assistant_response', { topic: 'fallback' });
     }
 
     setMessages((prev) => [...prev, { role: 'assistant', text: assistantText }]);
@@ -86,52 +168,10 @@ export function SmartAssistant({ profile, election, nextAction = null, planState
   }
 
   return (
-    <section className="premium-card flex flex-col h-[520px]">
-      <div className="p-5 border-b border-slate-100">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#000080] text-white shadow-sm">
-            <Bot size={22} aria-hidden="true" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-extrabold text-ink">{t('assistant_title')}</h2>
-              <Sparkles size={16} className="text-eci-saffron" aria-hidden="true" />
-            </div>
-            <p className="text-sm text-muted">{t('assistant_subtitle')}</p>
-          </div>
-        </div>
-      </div>
+    <section className="premium-card flex flex-col h-[520px]" aria-label="Smart Assistant Chat">
+      <AssistantHeader />
 
-      <div 
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50"
-      >
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${
-                message.role === 'user' 
-                  ? 'bg-[#000080] text-white rounded-tr-none' 
-                  : 'bg-white text-ink rounded-tl-none border border-slate-100'
-              }`}
-            >
-              {message.text}
-            </div>
-          </div>
-        ))}
-        {isTyping && (
-          <div className="flex justify-start">
-            <div className="bg-white border border-slate-100 rounded-2xl rounded-tl-none px-4 py-2.5 flex gap-1 shadow-sm">
-              <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" />
-              <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.2s]" />
-              <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.4s]" />
-            </div>
-          </div>
-        )}
-      </div>
+      <MessageList messages={messages} isTyping={isTyping} scrollRef={scrollRef} />
 
       <div className="bg-white border-t border-slate-100">
         {!hasSentMessage && (
@@ -140,7 +180,7 @@ export function SmartAssistant({ profile, election, nextAction = null, planState
               <button
                 key={reply}
                 onClick={() => handleSend(null, reply)}
-                aria-label={`Ask assistant: ${reply}`}
+                aria-label={`Ask: ${reply}`}
                 className="whitespace-nowrap px-4 py-1.5 bg-white border border-slate-200 rounded-full text-xs font-bold text-civic-navy hover:bg-slate-50 hover:border-civic-blue transition-all shadow-sm"
               >
                 {reply}
@@ -162,10 +202,10 @@ export function SmartAssistant({ profile, election, nextAction = null, planState
             <button
               type="submit"
               disabled={!inputValue.trim() || isTyping}
-              aria-label="Send assistant message"
+              aria-label="Send message"
               className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-[#000080] text-white rounded-lg hover:bg-blue-800 disabled:opacity-50 transition-colors"
             >
-              <Send size={18} />
+              <Send size={18} aria-hidden="true" />
             </button>
           </div>
         </form>
@@ -173,6 +213,23 @@ export function SmartAssistant({ profile, election, nextAction = null, planState
     </section>
   );
 }
+
+SmartAssistant.propTypes = {
+  profile: PropTypes.shape({
+    state: PropTypes.string,
+    age: PropTypes.number,
+    registrationStatus: PropTypes.string,
+  }).isRequired,
+  election: PropTypes.shape({
+    name: PropTypes.string,
+  }).isRequired,
+  nextAction: PropTypes.shape({
+    title: PropTypes.string,
+    description: PropTypes.string,
+  }),
+  planState: PropTypes.string.isRequired,
+};
+
 
 SmartAssistant.propTypes = {
   profile: PropTypes.shape({

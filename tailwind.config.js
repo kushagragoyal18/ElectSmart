@@ -4,8 +4,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Roboto', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        outfit: ['Outfit', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
       },
+
       colors: {
         ink: '#212529',
         muted: '#6c757d',

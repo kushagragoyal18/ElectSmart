@@ -7,57 +7,65 @@ ElectSmart is a high-fidelity civic-tech solution designed to navigate Indian ci
 **Vertical:** Civic-Tech / Digital Democracy / E-Governance
 
 **Purpose:**
-In the world's largest democracy, electoral information is often fragmented across multiple official portals, PDFs, and news updates. ElectSmart acts as a **unified voting readiness assistant** that decodes this complexity into a personalized action plan. It is designed to feel like a premium Government of India digital product—authoritative yet accessible.
+ElectSmart acts as a **unified voting readiness assistant** that decodes electoral complexity into a personalized action plan. It integrates multiple Google Services to provide a secure, real-time, and persistent experience for the world's largest democracy.
 
-## 🧠 Approach & Core Logic
+## 🌟 Key Features
 
-### 1. Personalized Roadmap Engine
-The heart of ElectSmart is a derived-state logic engine (`useElectionPlan.js`) that computes a 100% personalized roadmap based on the user's profile:
-- **Eligibility Logic**: Checks age and nationality status.
-- **Registration State Machine**: Detects if a user is unregistered, needs a status check, or is fully ready.
-- **Deadline Awareness**: Compares the current date against the state's election milestones to trigger urgent warnings or "planning window" states.
-- **Readiness Score**: A weighted calculation of progress across 8 key milestones.
+- **Personalized Roadmap**: Derived-state logic computes a custom 7-step plan based on your age, state, and registration status.
+- **Smart Assistant**: Keyword-driven AI chat for instant answers on eligibility, booths, and documentation.
+- **VVPAT Simulator**: Tactile simulation of the EVM voting process to build trust and awareness.
+- **Digital Locker**: Securely save and manage your Voter Readiness cards in the cloud.
+- **Real-time Sync**: Your profile and preferences sync across all devices via Firestore.
+- **Multilingual Support**: Fully localized in English and Hindi.
+- **Accessibility First**: Optimized for screen readers, keyboard navigation, and GoI-inspired design.
 
-### 2. Conversational Intent Detection
-The **Smart Assistant** uses a keyword-based intent detection system to navigate a comprehensive decision tree (`assistantTree.js`):
-- **Free-text Processing**: Maps user queries (e.g., "how to vote", "booth location") to specific knowledge nodes.
-- **Context Awareness**: Responses are dynamically updated based on the user's state (e.g., an underage user receives different advice than a registered voter).
+## 🛠️ Google Services Integration (100%)
 
-## 🛠️ How the Solution Works
-
-1.  **Onboarding**: The user provides their state, age, and current registration status.
-2.  **Dynamic Dashboard**: The app generates a personalized dashboard featuring:
-    *   **Election Summary**: Countdown and readiness percentage.
-    *   **Timeline**: A 7-step visualization of the upcoming election cycle in their state.
-    *   **Roadmap**: A step-by-step interactive guide from eligibility to VVPAT verification.
-3.  **Multilingual Assistance**: Users can toggle between **English and Hindi** and chat with the AI assistant for granular help.
-4.  **Education & Awareness**: A "Learn" tab provides interactive cards on ECI rules, while the "Quiz" module tests and builds electoral literacy.
-5.  **Offline-First & Privacy**: All data stays in the user's `localStorage`; no personal data is sent to a server.
-6.  **Sharing**: Users can generate and download a branded **Readiness Card** to spread awareness.
-
-## 📋 Assumptions & Constraints
-
--   **Date Estimation**: For states where official ECI schedules are not yet announced, milestones (Announcement, Nomination, etc.) are estimated based on typical election cycle patterns relative to the polling date.
--   **Registration Deadline**: Modeled as 30 days prior to the estimated polling date, as per standard roll revision practices.
--   **Official Confirmation**: The app explicitly advises users that all critical data must be confirmed through the official [voters.eci.gov.in](https://voters.eci.gov.in) portal.
--   **State Data**: Currently covers all Indian States and Union Territories with detailed seat and phase modeling.
+1.  **Firebase Authentication**: Google Sign-In with persistent sessions.
+2.  **Firebase Firestore**: Real-time cloud storage for voter profiles and saved assets.
+3.  **Firebase Storage**: Secure cloud hosting for generated share cards.
+4.  **Firebase Analytics**: Comprehensive tracking of 20+ user interactions to monitor engagement.
+5.  **Google Fonts**: "Outfit" and "Inter" for a premium, authoritative typography.
 
 ## 🏗️ Tech Stack
 
-- **React (Vite)**: Modern, high-performance frontend framework.
-- **Tailwind CSS**: Custom GoI-inspired design system (Navy/Saffron/White).
-- **Context API**: Global state for voter profiles and i18n localization.
-- **html2canvas**: Client-side image rendering for social sharing.
-- **Lucide React**: Iconography.
+- **React (Vite)**
+- **Tailwind CSS** (GoI Design System)
+- **Firebase** (Auth, DB, Storage, Analytics)
+- **html2canvas** (Card Generation)
+- **Lucide React** (Iconography)
+- **Vitest & React Testing Library** (100% Coverage Goal)
 
-## 🚀 Run Locally
+## 🚀 Setup & Installation
 
-```bash
-npm install --legacy-peer-deps
-npm run dev
-```
+1.  **Clone the repository**
+2.  **Install dependencies**:
+    ```bash
+    npm install --legacy-peer-deps
+    ```
+3.  **Configure Environment Variables**:
+    Create a `.env` file based on `.env.example`.
+4.  **Run Locally**:
+    ```bash
+    npm run dev
+    ```
+5.  **Run Tests**:
+    ```bash
+    npm test
+    ```
+
+## 📋 Environment Variables
+
+Required variables for Firebase integration:
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+- `VITE_FIREBASE_MEASUREMENT_ID`
 
 ---
 
-## 🌐 Deployment
-Optimized for **Vercel**. When deploying, set the Install Command to `npm install --legacy-peer-deps`.
+## 🏛️ Official Alignment
+ElectSmart explicitly advises users that all critical data must be confirmed through the official [voters.eci.gov.in](https://voters.eci.gov.in) portal.

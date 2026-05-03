@@ -1,41 +1,48 @@
-import { BookOpen, Info } from 'lucide-react';
-import { useTranslation } from '../hooks/useTranslation.js';
+import { ChevronRight, Info } from 'lucide-react';
 import { EDUCATION_CARDS } from '../constants.js';
+import { trackEvent } from '../firebase.js';
 
-/** Displays horizontally scrollable civic education cards. */
+/**
+ * Renders interactive education cards about electoral processes.
+ * Allows users to learn about EVMs, MCC, and other key concepts.
+ */
 export function EducationCards() {
-  const { t } = useTranslation();
+  /**
+   * Tracks when a user interacts with an education card.
+   * @param {string} title - Title of the card viewed.
+   */
+  const handleCardClick = (title) => {
+    trackEvent('view_education_card', { card_title: title });
+  };
 
   return (
-    <section className="premium-card p-6">
-      <div className="mb-6 flex items-center gap-3">
+    <section className="space-y-6">
+      <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-eci-green text-white shadow-sm">
-          <BookOpen size={22} aria-hidden="true" />
+          <Info size={22} aria-hidden="true" />
         </div>
         <div>
-          <h2 className="text-xl font-extrabold text-ink">{t('learn_title')}</h2>
-          <p className="text-sm text-muted">Essential knowledge for every Indian voter.</p>
+          <h2 className="text-xl font-extrabold text-ink">Electoral Education</h2>
+          <p className="text-sm text-muted">Learn how democracy works in India.</p>
         </div>
       </div>
-
-      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+      
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {EDUCATION_CARDS.map((card) => (
-          <div 
+          <button
             key={card.id}
-            className="min-w-[280px] md:min-w-[320px] bg-white border border-slate-100 rounded-2xl p-5 shadow-sm snap-start flex flex-col gap-4 hover:shadow-md transition-shadow"
+            onClick={() => handleCardClick(card.title)}
+            aria-label={`Learn more about ${card.title}`}
+            className="group flex flex-col text-left rounded-2xl border border-slate-100 bg-white p-6 shadow-soft transition-all hover:border-eci-green hover:shadow-lg active:scale-95"
           >
-            <h3 className="text-lg font-bold text-civic-navy">{card.title}</h3>
-            <p className="text-sm text-ink leading-relaxed flex-1">
-              {card.explanation}
-            </p>
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 flex gap-3 items-start">
-              <Info size={16} className="text-blue-600 mt-0.5 shrink-0" aria-hidden="true" />
-              <div>
-                <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-0.5">Key Fact</p>
-                <p className="text-xs text-blue-900 font-medium">{card.fact}</p>
-              </div>
+            <h3 className="text-lg font-black text-ink group-hover:text-eci-green transition-colors">{card.title}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted font-medium">{card.explanation}</p>
+            <div className="mt-6 flex items-center justify-between pt-4 border-t border-slate-50 w-full">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-eci-green">Official Fact</span>
+              <ChevronRight size={16} className="text-slate-300 group-hover:text-eci-green transition-colors" />
             </div>
-          </div>
+            <p className="mt-2 text-[11px] italic text-ink font-bold leading-tight">{card.fact}</p>
+          </button>
         ))}
       </div>
     </section>

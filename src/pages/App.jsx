@@ -1,164 +1,186 @@
-import { useEffect, useState } from 'react';
-import { ElectionSummary } from '../components/ElectionSummary.jsx';
-import { MapsLocator } from '../components/MapsLocator.jsx';
-import { NextActionCard } from '../components/NextActionCard.jsx';
-import { Onboarding } from '../components/Onboarding.jsx';
-import { Roadmap } from '../components/Roadmap.jsx';
-import { WatchLearn } from '../components/WatchLearn.jsx';
-import { Shell } from '../components/Shell.jsx';
-import { SmartAssistant } from '../components/SmartAssistant.jsx';
-import { VVPATSimulator } from '../components/VVPATSimulator.jsx';
-import { EducationCards } from '../components/EducationCards.jsx';
-import { TimelineVisualizer } from '../components/TimelineVisualizer.jsx';
-import { Quiz } from '../components/Quiz.jsx';
-import { ShareCard } from '../components/ShareCard.jsx';
+import { useMemo, useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useVoterProfile } from '../context/VoterProfileContext.jsx';
 import { useElectionPlan } from '../hooks/useElectionPlan.js';
 import { useTranslation } from '../hooks/useTranslation.js';
-import { APP_TABS } from '../constants.js';
+import { getElectionData } from '../data/elections.js';
 import { trackEvent } from '../firebase.js';
-import { LayoutDashboard, BookOpen, HelpCircle, Calendar, Share2, X } from 'lucide-react';
+import { APP_TABS } from '../constants.js';
 
-const TAB_ICONS = {
-  dashboard: LayoutDashboard,
-  timeline: Calendar,
-  learn: BookOpen,
-  quiz: HelpCircle,
+// Components
+import { Shell } from '../components/Shell.jsx';
+import { Onboarding } from '../components/Onboarding.jsx';
+import { ElectionSummary } from '../components/ElectionSummary.jsx';
+import { Roadmap } from '../components/Roadmap.jsx';
+import { NextActionCard } from '../components/NextActionCard.jsx';
+import { TimelineVisualizer } from '../components/TimelineVisualizer.jsx';
+import { EducationCards } from '../components/EducationCards.jsx';
+import { Quiz } from '../components/Quiz.jsx';
+import { WatchLearn } from '../components/WatchLearn.jsx';
+import { SmartAssistant } from '../components/SmartAssistant.jsx';
+import { VVPATSimulator } from '../components/VVPATSimulator.jsx';
+import { MapsLocator } from '../components/MapsLocator.jsx';
+import { ShareCard } from '../components/ShareCard.jsx';
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
+
+/**
+ * Renders the tab navigation list.
+ * @param {Object} props
+ * @param {string} props.activeTab - Current active tab ID.
+ * @param {Function} props.setActiveTab - Callback to change the active tab.
+ */
+function TabList({ activeTab, setActiveTab }) {
+  const { t } = useTranslation();
+
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    trackEvent('switch_tab', { tab: tabId });
+  };
+
+  return (
+    <nav className="mb-8 flex gap-1 rounded-2xl bg-slate-100 p-1 shadow-inner" role="tablist">
+      {APP_TABS.map((tab) => (
+        <button
+          key={tab.id}
+          role="tab"
+          aria-selected={activeTab === tab.id}
+          aria-controls={`${tab.id}-panel`}
+          id={`${tab.id}-tab`}
+          onClick={() => handleTabChange(tab.id)}
+          className={`flex-1 rounded-xl py-3 text-sm font-black transition-all uppercase tracking-wider ${
+            activeTab === tab.id ? 'bg-white text-civic-navy shadow-sm' : 'text-slate-500 hover:text-ink'
+          }`}
+        >
+          {t(tab.translationKey)}
+        </button>
+      ))}
+    </nav>
+  );
+}
+
+TabList.propTypes = {
+  activeTab: PropTypes.string.isRequired,
+  setActiveTab: PropTypes.func.isRequired,
 };
 
-/** Renders the main ElectSmart application shell and tabbed dashboard. */
+/**
+ * Main application component for ElectSmart.
+ * Handles onboarding flow and dashboard navigation.
+ */
 export function App() {
-  const { profile, setProfile, resetProfile } = useVoterProfile();
-  const { t } = useTranslation();
-  const plan = useElectionPlan(profile);
+  const { profile, updateProfile, resetProfile, loading } = useVoterProfile();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [showShareModal, setShowShareModal] = useState(false);
 
-  const tabs = APP_TABS.map((tab) => ({ ...tab, label: t(tab.translationKey), icon: TAB_ICONS[tab.id] }));
+  const electionData = useMemo(() => (profile ? getElectionData(profile.state) : null), [profile]);
+  const plan = useElectionPlan(profile, electionData);
 
   useEffect(() => {
-    trackEvent('page_view', { page_title: 'ElectSmart Home', tab: activeTab });
-  }, [activeTab]);
+    if (profile) {
+      trackEvent('page_view', { page: 'dashboard', tab: activeTab });
+    } else {
+      trackEvent('page_view', { page: 'onboarding' });
+    }
+  }, [profile, activeTab]);
 
-  /** Updates the selected dashboard tab and tracks the interaction. */
-  function selectTab(tabId) {
-    setActiveTab(tabId);
-    trackEvent('select_tab', { tab: tabId });
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-50" aria-busy="true">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#000080] border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <ErrorBoundary componentName="Onboarding">
+        <Onboarding onComplete={updateProfile} />
+      </ErrorBoundary>
+    );
   }
 
   return (
-    <Shell hasProfile={Boolean(profile)} onReset={resetProfile}>
-      {!profile ? (
-        <Onboarding onComplete={setProfile} />
-      ) : (
-        <div className="space-y-6">
-          {/* Tab Navigation */}
-          <nav className="flex gap-1 overflow-x-auto bg-white p-1 rounded-xl shadow-sm border border-slate-100 sticky top-[73px] z-10">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => selectTab(tab.id)}
-                  aria-label={`Open ${tab.label}`}
-                  aria-current={activeTab === tab.id ? 'page' : undefined}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-bold text-sm transition-all whitespace-nowrap ${
-                    activeTab === tab.id 
-                      ? 'bg-[#000080] text-white shadow-md' 
-                      : 'text-muted hover:bg-slate-50'
-                  }`}
-                >
-                  <Icon size={18} />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </nav>
+    <Shell hasProfile onReset={resetProfile}>
+      <div className="space-y-8 animate-fade-in">
+        <TabList activeTab={activeTab} setActiveTab={setActiveTab} />
 
-          <div className="fade-in">
-            {activeTab === 'dashboard' && (
-              <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-                <div className="space-y-6">
-                  <div className="relative">
-                    <ElectionSummary
-                      profile={profile}
-                      election={plan.election}
-                      countdown={plan.countdown}
-                      readiness={plan.readiness}
-                    />
-                    <button 
-                      onClick={() => setShowShareModal(true)}
-                      aria-label="Open share readiness card"
-                      className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/30 text-white rounded-full transition-colors"
-                      title={t('share')}
-                    >
-                      <Share2 size={18} />
-                    </button>
-                  </div>
-                  <NextActionCard action={plan.nextAction} />
-                  
-                  <button 
-                    onClick={() => setShowShareModal(true)}
-                    aria-label="Open share readiness card"
-                    className="w-full premium-card py-4 flex items-center justify-center gap-3 text-civic-navy font-black hover:bg-slate-50 transition-all group"
-                  >
-                    <div className="p-2 bg-slate-100 rounded-lg group-hover:bg-civic-blue group-hover:text-white transition-colors">
-                      <Share2 size={20} />
-                    </div>
-                    <span>{t('share').toUpperCase()}</span>
-                  </button>
-
-                  <Roadmap steps={plan.steps} />
-                  <WatchLearn />
+        <div id="dashboard-panel" role="tabpanel" aria-labelledby="dashboard-tab" hidden={activeTab !== 'dashboard'}>
+          {activeTab === 'dashboard' && (
+            <div className="grid gap-8 lg:grid-cols-3">
+              <div className="lg:col-span-2 space-y-8">
+                <ErrorBoundary componentName="ElectionSummary">
+                  <ElectionSummary
+                    profile={profile}
+                    election={electionData}
+                    countdown={plan.daysUntilElection}
+                    readiness={plan.readiness}
+                  />
+                </ErrorBoundary>
+                
+                <div className="grid gap-8 md:grid-cols-2">
+                  <ErrorBoundary componentName="NextActionCard">
+                    <NextActionCard action={plan.nextAction} />
+                  </ErrorBoundary>
+                  <ErrorBoundary componentName="VVPATSimulator">
+                    <VVPATSimulator />
+                  </ErrorBoundary>
                 </div>
 
-                <aside className="space-y-6">
+                <ErrorBoundary componentName="Roadmap">
+                  <Roadmap steps={plan.steps} />
+                </ErrorBoundary>
+              </div>
+
+              <aside className="space-y-8">
+                <ErrorBoundary componentName="SmartAssistant">
                   <SmartAssistant
                     profile={profile}
-                    election={plan.election}
+                    election={electionData}
                     nextAction={plan.nextAction}
                     planState={plan.planState}
                   />
-                  <VVPATSimulator />
-                  <MapsLocator election={plan.election} />
+                </ErrorBoundary>
+                <ErrorBoundary componentName="MapsLocator">
+                  <MapsLocator state={profile.state} />
+                </ErrorBoundary>
+                <ErrorBoundary componentName="ShareCard">
+                  <ShareCard readiness={plan.readiness} profile={profile} />
+                </ErrorBoundary>
+              </aside>
+            </div>
+          )}
+        </div>
+
+        <div id="timeline-panel" role="tabpanel" aria-labelledby="timeline-tab" hidden={activeTab !== 'timeline'}>
+          {activeTab === 'timeline' && (
+            <ErrorBoundary componentName="Timeline">
+              <div className="grid gap-8 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                  <TimelineVisualizer election={electionData} />
+                </div>
+                <aside>
+                  <WatchLearn />
                 </aside>
               </div>
-            )}
+            </ErrorBoundary>
+          )}
+        </div>
 
-            {activeTab === 'timeline' && (
-              <TimelineVisualizer election={plan.election} />
-            )}
-
-            {activeTab === 'learn' && (
+        <div id="learn-panel" role="tabpanel" aria-labelledby="learn-tab" hidden={activeTab !== 'learn'}>
+          {activeTab === 'learn' && (
+            <ErrorBoundary componentName="Education">
               <EducationCards />
-            )}
+            </ErrorBoundary>
+          )}
+        </div>
 
-            {activeTab === 'quiz' && (
+        <div id="quiz-panel" role="tabpanel" aria-labelledby="quiz-tab" hidden={activeTab !== 'quiz'}>
+          {activeTab === 'quiz' && (
+            <ErrorBoundary componentName="Quiz">
               <Quiz />
-            )}
-          </div>
+            </ErrorBoundary>
+          )}
         </div>
-      )}
-
-      {/* Share Modal */}
-      {showShareModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="relative w-full max-w-sm">
-            <button 
-              onClick={() => setShowShareModal(false)}
-              aria-label="Close share readiness card"
-              className="absolute -top-12 right-0 p-2 text-white hover:text-eci-saffron transition-colors"
-            >
-              <X size={32} />
-            </button>
-            <ShareCard 
-              profile={profile} 
-              readiness={plan.readiness} 
-              nextAction={plan.nextAction} 
-            />
-          </div>
-        </div>
-      )}
+      </div>
     </Shell>
   );
 }

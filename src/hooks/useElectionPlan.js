@@ -1,22 +1,26 @@
 import { getElectionByState } from '../data/elections.js';
+import { useMemo } from 'react';
+import { buildRoadmap, getNextAction, getReadiness, getPlanState } from '../utils/roadmap.js';
 import { daysUntil } from '../utils/date.js';
-import { buildRoadmap, getNextAction, getPlanState, getReadiness } from '../utils/roadmap.js';
 
-/** Derives all election planning data for a voter profile. */
-export function useElectionPlan(profile) {
-  const election = profile ? getElectionByState(profile.state) : null;
-  const steps = profile && election ? buildRoadmap(profile, election) : [];
-  const nextAction = getNextAction(steps);
-  const readiness = getReadiness(steps);
-  const countdown = election ? Math.max(daysUntil(election.nextElection.date), 0) : 0;
-  const planState = profile && election ? getPlanState(profile, election) : null;
+/**
+ * Hook to compute election milestones and voter readiness based on profile and election data.
+ * @param {Object} profile - User's voter profile.
+ * @param {Object} election - Election data for the user's state.
+ * @returns {Object} Calculated plan metrics including readiness score, countdown, and next action.
+ */
+export function useElectionPlan(profile, election) {
+  const steps = useMemo(() => buildRoadmap(profile, election), [profile, election]);
+  const nextAction = useMemo(() => getNextAction(steps), [steps]);
+  const readiness = useMemo(() => getReadiness(steps), [steps]);
+  const daysUntilElection = useMemo(() => (election ? daysUntil(election.nextElection.date) : 0), [election]);
+  const planState = useMemo(() => (profile && election ? getPlanState(profile, election).planState : 'unknown'), [profile, election]);
 
   return {
-    election,
     steps,
     nextAction,
     readiness,
-    countdown,
+    daysUntilElection,
     planState,
   };
 }

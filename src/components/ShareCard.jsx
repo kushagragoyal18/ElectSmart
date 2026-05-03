@@ -1,17 +1,35 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Share2, Download, CheckCircle2 } from 'lucide-react';
+import { Share2, Download, CheckCircle2, Cloud, Loader2, ExternalLink, Trash2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { useTranslation } from '../hooks/useTranslation.js';
 import { getStateName, getElectionByState } from '../data/elections.js';
 import { FULL_CIRCLE_DEGREES, READINESS_MAX, SHARE_CARD_SCALE, SHARE_ROTATION_OFFSET } from '../constants.js';
-import { trackEvent } from '../firebase.js';
+import { trackEvent, storage, db } from '../firebase.js';
+import { ref, uploadString, getDownloadURL, listAll, deleteObject } from 'firebase/storage';
+import { useAuth } from '../context/AuthContext.jsx';
+import { doc, updateDoc, arrayUnion, arrayRemove, getDoc } from 'firebase/firestore';
 
-/** Renders a downloadable and shareable voter readiness card. */
+/** Renders a downloadable and shareable voter readiness card with Firebase Storage integration. */
 export function ShareCard({ profile, readiness, nextAction }) {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const cardRef = useRef(null);
   const election = getElectionByState(profile.state);
+  const [isUploading, setIsUploading] = useState(false);
+  const [savedCards, setSavedCards] = useState([]);
+
+  // Fetch saved card URLs from Firestore
+  useEffect(() => {
+    async function fetchSavedCards() {
+      if (!user) return;
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists() && userDoc.data().savedCards) {
+        setSavedCards(userDoc.data().savedCards);
+      }
+    }
+    fetchSavedCards();
+  }, [user]);
 
   /** Captures the card as a PNG and downloads it locally. */
   async function handleDownload() {
@@ -34,6 +52,65 @@ export function ShareCard({ profile, readiness, nextAction }) {
     }
   }
 
+  /** Captures and uploads the card to Firebase Storage. */
+  async function handleCloudSave() {
+    if (!cardRef.current || !user) return;
+    setIsUploading(true);
+    
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        scale: SHARE_CARD_SCALE,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+      });
+      
+      const imageData = canvas.toDataURL('image/png');
+      const filename = `readiness_${Date.now()}.png`;
+      const storageRef = ref(storage, `users/${user.uid}/cards/${filename}`);
+      
+      await uploadString(storageRef, imageData, 'data_url');
+      const downloadURL = await getDownloadURL(storageRef);
+      
+      // Save URL to Firestore
+      const userDocRef = doc(db, 'users', user.uid);
+      await updateDoc(userDocRef, {
+        savedCards: arrayUnion(downloadURL)
+      });
+      
+      setSavedCards(prev => [...prev, downloadURL]);
+      trackEvent('upload_card_to_storage', { status: 'success' });
+      alert('Card saved to your digital locker!');
+    } catch (err) {
+      console.error('Upload error:', err);
+      trackEvent('upload_card_to_storage_error', { error: err.message });
+      alert('Failed to save to cloud.');
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  /** Deletes a card from storage and Firestore. */
+  async function handleDeleteCard(url) {
+    if (!user) return;
+    try {
+      // Extract filename from URL (simplified for this demo)
+      // In a real app, you'd store the storage path
+      const storageRef = ref(storage, url);
+      await deleteObject(storageRef);
+      
+      const userDocRef = doc(db, 'users', user.uid);
+      await updateDoc(userDocRef, {
+        savedCards: arrayRemove(url)
+      });
+      
+      setSavedCards(prev => prev.filter(c => c !== url));
+      trackEvent('delete_card_from_storage', { status: 'success' });
+    } catch (err) {
+      console.error('Delete error:', err);
+      trackEvent('delete_card_from_storage_error', { error: err.message });
+    }
+  }
+
   /** Uses the browser share sheet when available. */
   function handleShare() {
     if (navigator.share) {
@@ -47,7 +124,7 @@ export function ShareCard({ profile, readiness, nextAction }) {
   }
 
   return (
-    <div className="bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-100 max-w-sm mx-auto animate-fade-in">
+    <div className="bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-100 max-w-sm mx-auto animate-fade-in font-inter">
       {/* Capture Area */}
       <div ref={cardRef} className="bg-white">
         {/* Tricolor Accent Bar */}
@@ -99,30 +176,61 @@ export function ShareCard({ profile, readiness, nextAction }) {
               <p className="text-sm font-bold text-ink">{nextAction.title}</p>
             </div>
           </div>
-
-          <div className="pt-2">
-            <p className="text-[11px] text-[#000080] font-bold italic">Check yours at ElectSmart</p>
-          </div>
         </div>
       </div>
 
       {/* Action Bar */}
-      <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-2">
-        <button 
-          onClick={handleDownload}
-          aria-label="Download readiness card"
-          className="flex-1 bg-[#000080] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-800 transition-all shadow-md active:scale-95"
-        >
-          <Download size={18} aria-hidden="true" />
-          Download Card
-        </button>
-        <button 
-          onClick={handleShare}
-          aria-label="Share readiness card"
-          className="p-3 bg-white border border-slate-200 text-ink rounded-xl hover:bg-slate-100 transition-colors"
-        >
-          <Share2 size={20} aria-hidden="true" />
-        </button>
+      <div className="p-4 bg-slate-50 border-t border-slate-100 flex flex-col gap-2">
+        <div className="flex gap-2">
+          <button 
+            onClick={handleDownload}
+            aria-label="Download readiness card"
+            className="flex-1 bg-[#000080] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-800 transition-all shadow-md active:scale-95"
+          >
+            <Download size={18} aria-hidden="true" />
+            Download
+          </button>
+          {user && (
+            <button 
+              onClick={handleCloudSave}
+              disabled={isUploading}
+              aria-label="Save to cloud"
+              className="flex-1 bg-white border-2 border-[#000080] text-[#000080] font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-50 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+            >
+              {isUploading ? <Loader2 size={18} className="animate-spin" /> : <Cloud size={18} />}
+              {isUploading ? 'Saving...' : 'Cloud Save'}
+            </button>
+          )}
+          <button 
+            onClick={handleShare}
+            aria-label="Share readiness card"
+            className="p-3 bg-white border border-slate-200 text-ink rounded-xl hover:bg-slate-100 transition-colors"
+          >
+            <Share2 size={20} aria-hidden="true" />
+          </button>
+        </div>
+
+        {/* Saved Gallery */}
+        {savedCards.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-slate-200">
+            <p className="text-[10px] font-black uppercase text-slate-400 mb-2">My Saved Cards ({savedCards.length})</p>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {savedCards.map((url, idx) => (
+                <div key={idx} className="relative group shrink-0">
+                  <img src={url} alt="Saved card" className="w-16 h-20 object-cover rounded-lg border border-slate-200" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
+                    <a href={url} target="_blank" rel="noreferrer" className="p-1 text-white hover:text-eci-saffron">
+                      <ExternalLink size={12} />
+                    </a>
+                    <button onClick={() => handleDeleteCard(url)} className="p-1 text-white hover:text-red-400">
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -137,3 +245,4 @@ ShareCard.propTypes = {
     title: PropTypes.string.isRequired,
   }).isRequired,
 };
+
