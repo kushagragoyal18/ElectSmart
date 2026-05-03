@@ -143,6 +143,11 @@ export function getElectionByState(stateId) {
   return electionData[normalizeStateId(stateId)] ?? null;
 }
 
+/** Backward-compatible alias for existing callers. */
+export function getElectionData(stateId) {
+  return getElectionByState(stateId);
+}
+
 /** Returns a human-readable state or union territory name. */
 export function getStateName(stateId) {
   return getElectionByState(stateId)?.name ?? stateId;

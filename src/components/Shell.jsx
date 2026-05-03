@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { useVoterProfile } from '../context/VoterProfileContext.jsx';
 import { useTranslation } from '../hooks/useTranslation.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import { UI_STRINGS, trackEvent } from '../constants.js';
+import { trackEvent } from '../firebase.js';
+import { UI_STRINGS } from '../constants.js';
 
 /**
  * Provides the shared page chrome, accessibility links, and language control.
