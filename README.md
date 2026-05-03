@@ -1,107 +1,95 @@
-# ElectSmart Assistant
+# ElectSmart Assistant 🇮🇳
 
-ElectSmart Assistant is a civic-tech web application for Indian citizens. It turns election information into a personalized, step-by-step voting readiness journey.
+ElectSmart Assistant is a premium civic-tech voting readiness platform for Indian citizens. It transforms complex electoral information into a personalized, step-by-step journey, ensuring every citizen is prepared for democracy.
 
-## Problem Statement
+## 🌟 Premium Features
 
-Election information is often scattered across portals, notices, PDFs, and local updates. Citizens need a calm assistant that understands their state, age, and registration status, then tells them what to do next.
+### 1. Conversational AI Assistant
+Replaced static decision trees with a real-time conversational chat interface.
+- **Free-text Input**: Users can type queries naturally (e.g., "how to register").
+- **Smart Context**: Assistant detects user intent and provides state-specific guidance.
+- **Typing Indicator**: Provides a polished, modern chat experience.
+- **Quick-Reply Chips**: One-tap shortcuts for common voter questions.
 
-## Solution Overview
+### 2. Multilingual Support (English + Hindi)
+Full localization for maximum accessibility across India.
+- **Dynamic Toggle**: Instantly switch between English and Hindi.
+- **Persistence**: Language preferences are remembered for future visits.
 
-The app asks for a user profile, builds a personalized election plan, computes readiness progress, and guides the citizen through an assistant flow. It is designed to feel like a Government of India digital product: clear, accessible, authoritative, and action-oriented.
+### 3. Interactive Election Education
+A dedicated "Learn" tab featuring swipeable cards that explain key concepts:
+- EVM & VVPAT mechanics
+- Model Code of Conduct (MCC)
+- NOTA and voter rights
+- Election Commission of India (ECI) role
 
-## Tech Stack
+### 4. Expanded 7-Step Timeline
+A comprehensive vertical timeline visualizer specific to the user's state:
+- Tracks milestones from Announcement → Registration → Nomination → Campaign → Polling → Counting → Results.
+- Smart color-coding: Past (Green), Current (Orange), Future (Grey).
 
-- React with Vite
-- Tailwind CSS
-- Context API for global user profile state
-- LocalStorage for session persistence
-- Google Maps embed for polling booth location search
-- Lucide React icons
+### 5. Voter Awareness Quiz
+An interactive "Test Your Knowledge" module with 5 multiple-choice questions to build electoral literacy and awareness.
 
-## Architecture
+### 6. Shareable Readiness Card
+Celebrate voter readiness with a high-fidelity digital badge.
+- **Tricolor Theme**: Government-inspired design with saffron/white/green accents.
+- **Downloadable**: Integrated `html2canvas` for one-click PNG downloads of your readiness card.
+
+## 🎨 Design Language
+
+Designed to feel like an authoritative Government of India digital product:
+- **Palette**: Civic Navy (`#000080`), ECI Saffron (`#FF9933`), and Prosperity Green (`#138808`).
+- **Typography**: Clean, professional, and accessible.
+- **Branding**: Ashoka Emblem and Tricolor motifs for a premium, trustworthy feel.
+
+## 🛠️ Tech Stack
+
+- **React (Vite)**: Modern component-based architecture.
+- **Tailwind CSS**: Utility-first styling for a premium UI.
+- **Context API**: Global state management for voter profiles and localization.
+- **html2canvas**: Client-side image generation for the shareable readiness card.
+- **Lucide React**: Modern iconography.
+- **LocalStorage**: Persistence for user progress and language settings.
+
+## 📂 Architecture
 
 ```text
 src/
-  components/   UI modules for onboarding, plan cards, roadmap, assistant, maps
-  context/      Voter profile provider and persistence
-  data/         Structured India election dataset
-  hooks/        Derived election-plan logic
-  pages/        App composition
-  utils/        Date helpers, roadmap engine, assistant decision tree
+  components/   UI modules (Chat, Timeline, Education, Quiz, ShareCard)
+  context/      Voter profile and i18n/Language state management
+  data/         Structured India election dataset (milestones, seats, types)
+  hooks/        Custom hooks for election plan logic and translations
+  pages/        Main dashboard composition with tabbed navigation
+  utils/        Date logic, roadmap engine, and assistant logic
 ```
 
-## Data Structure
+## 🚀 Run Locally
 
-`src/data/elections.js` contains a reusable dataset for all Indian states and union territories. Each entry includes:
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-- State or UT name
-- Category
-- Assembly seats
-- Lok Sabha seats
-- Next election type
-- Planning date and year
-- Date status
-- Registration portal and deadline
-- Google Maps polling search query
+---
 
-UTs without assemblies are modeled as Lok Sabha planning entries.
+## 🌐 Deployment
 
-## Logic Explanation
+ElectSmart is optimized for **Vercel**. 
 
-The roadmap engine computes:
-
-- eligibility
-- registration requirement
-- missed registration deadline
-- urgent registration window
-- election passed state
-- readiness percentage
-- next best action
-
-The roadmap steps are:
-
-1. Check eligibility
-2. Register
-3. Get voter ID
-4. Find booth
-5. Know candidates
-6. Prepare for voting
-7. Cast vote
-8. Verify VVPAT
-
-Each step is marked as `completed`, `pending`, or `locked`.
-
-## Assistant Logic
-
-The Smart Assistant uses a decision tree in `src/utils/assistantTree.js`. Responses are computed from the user profile and election plan, covering:
-
-- underage users
-- registered users
-- unregistered users
-- users unsure about registration
-- missed deadlines
-- booth lookup
-- candidate research
-- document preparation
-- VVPAT guidance
-
-## Google Services Used
-
-Google Maps is embedded in the dashboard as a polling booth locator. The app also opens Google Maps search results for the selected state or UT.
-
-## Assumptions
-
-- Election dates are planning estimates unless marked otherwise.
-- Registration deadlines are modeled as 30 days before the planning election date.
-- Official eligibility, roll revision, and schedule details should always be confirmed through the Election Commission portal.
-- User profile data is stored locally in the browser, not on a remote server.
-
-## Run Locally
-
+### Quick Deploy
+When deploying to Vercel, ensure you set the **Install Command** to:
 ```bash
-npm install
-npm run dev
+npm install --legacy-peer-deps
 ```
+Or set the environment variable `NPM_CONFIG_LEGACY_PEER_DEPS=true`.
 
-Open the local Vite URL shown in the terminal.
+For a step-by-step guide on production deployment, check out [deployment_vercel.md](./deployment_vercel.md).
+
+### Disclaimer
+ElectSmart is an assistant tool. Election dates are planning estimates unless marked as official. Always verify critical information (eligibility, roll revision, final schedules) through the **Election Commission of India (ECI)** official portal at [voters.eci.gov.in](https://voters.eci.gov.in/).

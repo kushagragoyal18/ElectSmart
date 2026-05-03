@@ -4,17 +4,17 @@ const statusConfig = {
   completed: {
     label: 'COMPLETED',
     icon: CheckCircle2,
-    className: 'border-eci-green-border bg-eci-green-bg text-eci-green-accent',
+    className: 'border-[#138808]/20 bg-[#138808]/5 text-[#138808]',
   },
   pending: {
     label: 'PENDING',
     icon: Clock3,
-    className: 'border-eci-yellow-border bg-eci-yellow-bg text-eci-yellow-accent',
+    className: 'border-[#FF9933]/20 bg-[#FF9933]/5 text-[#FF9933]',
   },
   locked: {
     label: 'LOCKED',
     icon: LockKeyhole,
-    className: 'border-eci-red-border bg-eci-red-bg text-eci-red-accent',
+    className: 'border-slate-200 bg-slate-50 text-slate-400',
   },
 };
 

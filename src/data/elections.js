@@ -35,6 +35,15 @@ function assembly({
       deadline: offsetDate(date, -30),
       portal: nationalPortal,
     },
+    timeline: {
+      announcement: offsetDate(date, -60),
+      registration: offsetDate(date, -30),
+      nomination: offsetDate(date, -25),
+      campaign: offsetDate(date, -20),
+      polling: date,
+      counting: offsetDate(date, 4),
+      results: offsetDate(date, 5),
+    },
     pollingSearch: `polling booth locator ${name} Election Commission`,
   };
 }
@@ -57,6 +66,15 @@ function lokSabha({ id, name, category = 'Union Territory', lokSabhaSeats, date 
     registration: {
       deadline: offsetDate(date, -30),
       portal: nationalPortal,
+    },
+    timeline: {
+      announcement: offsetDate(date, -60),
+      registration: offsetDate(date, -30),
+      nomination: offsetDate(date, -25),
+      campaign: offsetDate(date, -20),
+      polling: date,
+      counting: offsetDate(date, 4),
+      results: offsetDate(date, 5),
     },
     pollingSearch: `polling booth locator ${name} Election Commission`,
   };

@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Search, ChevronDown, MessageSquare, Mail, Calendar, Share2, Palette } from 'lucide-react';
 import { getStateName, states } from '../data/elections.js';
+import ashokaEmblem from '../assets/ashoka_emblem.png';
+import heroBg from '../assets/hero_bg.png';
 
 export function Onboarding({ onComplete }) {
   const [form, setForm] = useState({
@@ -8,6 +10,7 @@ export function Onboarding({ onComplete }) {
     age: '18',
     registrationStatus: 'not_registered',
   });
+  const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
 
   function updateField(field, value) {
@@ -21,10 +24,7 @@ export function Onboarding({ onComplete }) {
 
     if (!states.includes(form.state)) nextErrors.state = 'Choose a valid state or union territory.';
     if (!Number.isFinite(age) || age < 1 || age > 120) nextErrors.age = 'Enter an age between 1 and 120.';
-    if (!['registered', 'not_registered', 'unsure'].includes(form.registrationStatus)) {
-      nextErrors.registrationStatus = 'Choose your current registration status.';
-    }
-
+    
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
 
@@ -36,91 +36,109 @@ export function Onboarding({ onComplete }) {
   }
 
   return (
-    <section className="fade-in grid min-h-[calc(100vh-140px)] items-center gap-10 py-8 lg:grid-cols-[0.92fr_1.08fr]">
-      <div className="max-w-xl">
-        <p className="mb-3 text-sm font-bold uppercase tracking-wide text-civic-blue">Guided voting journey</p>
-        <h1 className="text-4xl font-extrabold leading-tight text-ink sm:text-5xl lg:text-6xl">
-          Build your personal election plan in under a minute.
-        </h1>
-        <p className="mt-5 text-lg leading-8 text-muted">
-          ElectSmart uses your age, state, and registration status to show only the steps that matter next.
-        </p>
-        <div className="mt-8 grid gap-3 sm:grid-cols-3">
-          {['Context-aware', 'Deadline smart', 'Mobile ready'].map((item) => (
-            <div key={item} className="rounded-lg border border-civic-line bg-white/80 px-4 py-3 text-sm font-bold text-civic-navy shadow-sm">
-              {item}
-            </div>
-          ))}
-        </div>
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Background with dark overlay - Full Viewport Coverage */}
+      <div 
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundImage: `url('https://akm-img-a-in.tosshub.com/indiatoday/images/story/202412/jharkhand-assembly-election-1st-phase-voting-13th-november-125945963-16x9.png?VersionId=b_gEd06hG6jod7XCJabjLyhqZBeSeqi_&size=690:388')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="absolute inset-0 bg-black/65 backdrop-blur-[1px]" />
       </div>
 
-      <form onSubmit={handleSubmit} className="premium-card p-5 sm:p-7">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-ink">Tell us where you are</h2>
-          <p className="mt-2 text-sm text-muted">Your answers stay in this browser session.</p>
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-140px)] px-4 py-12">
+        {/* State Emblem */}
+        <div className="mb-6 flex flex-col items-center animate-fade-in">
+          <img src={ashokaEmblem} alt="State Emblem of India" className="h-32 w-auto mb-2 mix-blend-screen" />
+          <p className="text-[10px] font-bold text-white tracking-[0.3em] uppercase">सत्यमेव जयते</p>
         </div>
 
-        <label className="mb-5 block">
-          <span className="mb-2 block text-sm font-semibold text-ink">State</span>
-          <select
-            value={form.state}
-            onChange={(event) => updateField('state', event.target.value)}
-            className="h-12 w-full rounded-md border border-civic-line bg-white px-3 text-ink"
-          >
-            {states.map((state) => (
-              <option key={state} value={state}>
-                {getStateName(state)}
-              </option>
-            ))}
-          </select>
-          {errors.state && <span className="mt-2 block text-sm font-semibold text-red-700">{errors.state}</span>}
-        </label>
+        <div className="text-center mb-12">
+          <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight flex items-center justify-center gap-2 drop-shadow-2xl">
+            Elect<span className="text-eci-saffron">Smart</span>
+            <span className="bg-eci-saffron text-black text-xs font-bold px-2 py-0.5 rounded ml-2 align-middle">BETA</span>
+          </h1>
+          <p className="text-xl md:text-2xl font-bold text-white mt-2 tracking-wide opacity-90">
+            Election Assistant of India
+          </p>
+          <div className="h-1 w-24 bg-gradient-to-r from-eci-saffron via-white to-eci-green mx-auto mt-4 rounded-full" />
+          <p className="text-white/70 text-sm mt-4 font-medium italic">
+            "Where Citizen Engagement Converges"
+          </p>
+        </div>
 
-        <label className="mb-5 block">
-          <span className="mb-2 block text-sm font-semibold text-ink">Age</span>
-          <input
-            min="1"
-            max="120"
-            type="number"
-            value={form.age}
-            onChange={(event) => updateField('age', event.target.value)}
-            className="h-12 w-full rounded-md border border-civic-line bg-white px-3 text-ink"
-          />
-          {errors.age && <span className="mt-2 block text-sm font-semibold text-red-700">{errors.age}</span>}
-        </label>
-
-        <fieldset className="mb-6">
-          <legend className="mb-2 text-sm font-semibold text-ink">Are you registered to vote?</legend>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {[
-              ['registered', 'Yes, registered'],
-              ['not_registered', 'No, not yet'],
-              ['unsure', 'Not sure'],
-            ].map(([value, label]) => (
-              <label
-                key={value}
-                className="interactive-card flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border border-civic-line px-3 font-semibold text-ink has-[:checked]:border-civic-blue has-[:checked]:bg-blue-50"
+        {/* Central Search-style Form */}
+        <form onSubmit={handleSubmit} className="w-full max-w-4xl flex flex-col items-center gap-6">
+          <div className="w-full bg-white rounded-lg shadow-2xl overflow-hidden flex flex-col md:flex-row p-1.5 gap-1.5 md:h-16">
+            <div className="flex-1 relative flex items-center">
+              <Search className="absolute left-4 text-gray-400" size={20} />
+              <input 
+                type="number"
+                placeholder="Enter your age"
+                value={form.age}
+                onChange={(e) => updateField('age', e.target.value)}
+                className="w-full h-full pl-12 pr-4 text-ink font-semibold focus:outline-none placeholder:text-gray-400"
+              />
+            </div>
+            
+            <div className="h-px w-full md:h-full md:w-px bg-gray-200" />
+            
+            <div className="flex-1 relative flex items-center">
+              <select
+                value={form.state}
+                onChange={(e) => updateField('state', e.target.value)}
+                className="w-full h-full appearance-none pl-4 pr-10 text-ink font-semibold bg-transparent focus:outline-none cursor-pointer"
               >
-                <input
-                  type="radio"
-                  name="registrationStatus"
-                  checked={form.registrationStatus === value}
-                  onChange={() => updateField('registrationStatus', value)}
-                />
-                {label}
-              </label>
-            ))}
-          </div>
-          {errors.registrationStatus && (
-            <span className="mt-2 block text-sm font-semibold text-red-700">{errors.registrationStatus}</span>
-          )}
-        </fieldset>
+                {states.map((state) => (
+                  <option key={state} value={state}>
+                    {getStateName(state)}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-4 text-gray-400 pointer-events-none" size={18} />
+            </div>
 
-        <button className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-civic-blue px-5 font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-civic-navy hover:shadow-soft">
-          Create my plan
-          <ArrowRight size={18} aria-hidden="true" />
-        </button>
-      </form>
-    </section>
+            <button 
+              type="submit"
+              className="bg-[#ef4040] hover:bg-red-700 text-white font-bold px-12 h-full rounded-md transition-colors flex items-center justify-center gap-2 text-lg uppercase tracking-wider"
+            >
+              Start <ArrowRight size={20} />
+            </button>
+          </div>
+
+          <div className="flex gap-8 mt-12 items-center">
+            <label className="flex items-center gap-3 text-white cursor-pointer group">
+              <div className={`w-5 h-5 rounded-full border-2 border-white flex items-center justify-center transition-all ${form.registrationStatus === 'registered' ? 'bg-eci-saffron border-eci-saffron' : ''}`}>
+                <input 
+                  type="radio" 
+                  className="hidden" 
+                  name="reg" 
+                  checked={form.registrationStatus === 'registered'}
+                  onChange={() => updateField('registrationStatus', 'registered')}
+                />
+                {form.registrationStatus === 'registered' && <div className="w-2 h-2 bg-white rounded-full" />}
+              </div>
+              <span className="text-sm font-bold opacity-80 group-hover:opacity-100">Registered</span>
+            </label>
+            <label className="flex items-center gap-3 text-white cursor-pointer group">
+              <div className={`w-5 h-5 rounded-full border-2 border-white flex items-center justify-center transition-all ${form.registrationStatus === 'not_registered' ? 'bg-eci-saffron border-eci-saffron' : ''}`}>
+                <input 
+                  type="radio" 
+                  className="hidden" 
+                  name="reg" 
+                  checked={form.registrationStatus === 'not_registered'}
+                  onChange={() => updateField('registrationStatus', 'not_registered')}
+                />
+                {form.registrationStatus === 'not_registered' && <div className="w-2 h-2 bg-white rounded-full" />}
+              </div>
+              <span className="text-sm font-bold opacity-80 group-hover:opacity-100">Not Registered</span>
+            </label>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

@@ -68,7 +68,7 @@ export function VVPATSimulator() {
                     onClick={() => handleVote(c)}
                     className={`h-10 w-10 rounded-full border-2 border-slate-400 shadow-sm transition-all active:scale-95 ${
                       step === 'ready' 
-                        ? 'cursor-pointer bg-blue-600 hover:bg-blue-700' 
+                        ? 'cursor-pointer bg-eci-saffron hover:bg-orange-600' 
                         : 'cursor-not-allowed bg-slate-400 opacity-50'
                     }`}
                     aria-label={`Vote for ${c.name}`}
@@ -78,7 +78,7 @@ export function VVPATSimulator() {
             </div>
             
             {step === 'voting' && (
-              <div className="mt-4 flex items-center justify-center gap-2 rounded bg-amber-50 p-2 text-xs font-bold text-amber-800 animate-pulse">
+              <div className="mt-4 flex items-center justify-center gap-2 rounded bg-orange-50 p-2 text-xs font-bold text-eci-saffron animate-pulse">
                 <Fingerprint size={16} />
                 RECORDING VOTE...
               </div>
@@ -90,7 +90,7 @@ export function VVPATSimulator() {
         <div className="flex flex-col items-center">
           <div className="w-full max-w-[280px] space-y-4">
             <div className="relative rounded-xl border-4 border-slate-700 bg-slate-800 p-4 shadow-xl">
-              <div className="mb-4 text-center text-[10px] font-bold tracking-tighter text-slate-500 uppercase">
+              <div className="mb-4 text-center text-[10px] font-bold tracking-tighter text-slate-400 uppercase">
                 VVPAT UNIT - PRINTER STATUS: {step === 'printing' ? 'PRINTING' : 'IDLE'}
               </div>
               
@@ -106,13 +106,13 @@ export function VVPATSimulator() {
                     <div className="my-4 text-4xl">{selected?.symbol}</div>
                     <div className="text-lg font-black text-ink">{selected?.name}</div>
                     <div className="text-xs font-bold text-muted uppercase">{selected?.party}</div>
-                    <div className="mt-4 text-[8px] text-slate-400">SR NO: {Math.floor(Math.random() * 90000) + 10000}</div>
+                    <div className="mt-4 text-[8px] text-slate-400 border-t border-dashed pt-2">SR NO: {Math.floor(Math.random() * 90000) + 10000}</div>
                   </div>
                 )}
                 
                 {!vvpatVisible && (
                   <div className="flex h-full items-center justify-center text-center p-6">
-                    <p className="text-xs font-medium text-slate-600">
+                    <p className="text-xs font-medium text-slate-500">
                       {step === 'ready' ? 'Waiting for ballot selection...' : step === 'success' ? 'Vote cast successfully.' : ''}
                     </p>
                   </div>
@@ -120,30 +120,30 @@ export function VVPATSimulator() {
               </div>
               
               {/* Glass Reflection Effect */}
-              <div className="absolute inset-x-4 top-8 h-64 pointer-events-none bg-gradient-to-tr from-white/5 to-transparent z-20 opacity-30" />
+              <div className="absolute inset-x-4 top-8 h-64 pointer-events-none bg-gradient-to-tr from-white/10 to-transparent z-20 opacity-30" />
             </div>
             
-            <div className="rounded-lg bg-blue-50 p-4 text-center text-xs text-blue-900 border border-blue-100">
+            <div className="rounded-lg bg-orange-50 p-4 text-center text-xs text-orange-900 border border-orange-100">
               {step === 'ready' && (
                 <div className="flex items-center gap-2 justify-center">
-                  <AlertCircle size={14} />
-                  <span>Select a candidate on the left to begin simulation.</span>
+                  <AlertCircle size={14} className="text-eci-saffron" />
+                  <span className="font-medium">Select a candidate on the left to begin simulation.</span>
                 </div>
               )}
               {step === 'printing' && (
-                <div className="font-bold text-blue-700">
+                <div className="font-bold text-[#FF9933]">
                   Verify your selection on the paper slip. It will be visible for 7 seconds.
                 </div>
               )}
               {step === 'success' && (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 justify-center font-bold text-green-700">
+                  <div className="flex items-center gap-2 justify-center font-bold text-[#138808]">
                     <CheckCircle2 size={16} />
                     <span>Your vote has been securely recorded.</span>
                   </div>
                   <button 
                     onClick={reset}
-                    className="inline-flex items-center gap-1 font-bold text-blue-600 hover:underline"
+                    className="inline-flex items-center gap-1 font-bold text-eci-saffron hover:underline"
                   >
                     <RefreshCcw size={12} />
                     Try again

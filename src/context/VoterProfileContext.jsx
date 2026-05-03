@@ -2,6 +2,7 @@ import { createContext, useContext, useMemo, useState } from 'react';
 import { normalizeStateId } from '../data/elections.js';
 
 const STORAGE_KEY = 'electsmart-profile-v2';
+const LANG_KEY = 'electsmart-lang';
 const VoterProfileContext = createContext(null);
 
 function readStoredProfile() {
@@ -14,8 +15,13 @@ function readStoredProfile() {
   }
 }
 
+function readStoredLang() {
+  return localStorage.getItem(LANG_KEY) || 'en';
+}
+
 export function VoterProfileProvider({ children }) {
   const [profile, setProfileState] = useState(readStoredProfile);
+  const [language, setLanguageState] = useState(readStoredLang);
 
   function setProfile(nextProfile) {
     const normalizedProfile = { ...nextProfile, state: normalizeStateId(nextProfile.state) };
@@ -23,12 +29,23 @@ export function VoterProfileProvider({ children }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedProfile));
   }
 
+  function setLanguage(lang) {
+    setLanguageState(lang);
+    localStorage.setItem(LANG_KEY, lang);
+  }
+
   function resetProfile() {
     setProfileState(null);
     localStorage.removeItem(STORAGE_KEY);
   }
 
-  const value = useMemo(() => ({ profile, setProfile, resetProfile }), [profile]);
+  const value = useMemo(() => ({ 
+    profile, 
+    setProfile, 
+    resetProfile,
+    language,
+    setLanguage
+  }), [profile, language]);
 
   return <VoterProfileContext.Provider value={value}>{children}</VoterProfileContext.Provider>;
 }
